@@ -1,20 +1,19 @@
 import * as THREE from "three";
 
-function GetOrtho(v: Float32Array, ia: number, ib: number, ic: number) {
-  const a = new THREE.Vector3(v[ia * 3], v[ia * 3 + 1], v[ia * 3 + 2]);
-  const b = new THREE.Vector3(v[ib * 3], v[ib * 3 + 1], v[ib * 3 + 2]);
-  const c = new THREE.Vector3(v[ic * 3], v[ic * 3 + 1], v[ic * 3 + 2]);
-  const ab = b.clone().sub(a);
-  const ac = c.clone().sub(a);
-  return ab.clone().cross(ac).normalize();
-}
-
 class Rail {
   container = new THREE.Object3D();
   profiles = new Array<THREE.Mesh>();
   last_position = new THREE.Vector3();
 
-  vertices = new Array<number>();
+  current_profile = new Array<THREE.Vector3>();
+  previous_profile = new Array<THREE.Vector3>();
+
+  vertices = new Array<THREE.Vector3>();
+  normals = new Array<THREE.Vector3>();
+  vertex_counter = 0;
+
+  vertices_float = new Float32Array();
+  normals_float = new Float32Array();
 
   constructor(scene: THREE.Object3D) {
     scene.add(this.container);
@@ -28,7 +27,13 @@ class Rail {
     const right = new THREE.Vector3(-0.1, 0, 0);
     up.applyQuaternion(rotation);
     right.applyQuaternion(rotation);
+
+    for (let i = 0; i < this.current_profile.length; ++i) {
+      this.previous_profile[i] = this.current_profile[i];
+    }
     this.GenerateRailProfile(position, up, right);
+    this.GenerateRailChunk();
+    this.SaveRailProfile();
     this.ClearOldProfiles();
     this.last_position = position;
   }
@@ -38,99 +43,82 @@ class Rail {
     up: THREE.Vector3,
     right: THREE.Vector3
   ) {
-    const num_vertices = 4;
-    const num_values = 3 * num_vertices;
-    if (this.vertices.length == 0) {
-      // Resize
-      while (this.vertices.length < num_values * 2) {
-        this.vertices.push(0);
-      }
-    } else {
-      // Copy previous points to beginning of buffer
-      for (let i = 0; i < num_values; ++i) {
-        this.vertices[i] = this.vertices[i + num_values];
-      }
-    }
-    let i = num_values;
-    this.vertices[i++] = position.x - up.x - right.x;
-    this.vertices[i++] = position.y - up.y - right.y;
-    this.vertices[i++] = position.z - up.z - right.z;
+    this.current_profile[0] = position.clone().sub(up).sub(right);
+    this.current_profile[1] = position.clone().add(up).sub(right);
+    this.current_profile[2] = position.clone().add(up).add(right);
+    this.current_profile[3] = position.clone().sub(up).add(right);
+  }
 
-    this.vertices[i++] = position.x + up.x - right.x;
-    this.vertices[i++] = position.y + up.y - right.y;
-    this.vertices[i++] = position.z + up.z - right.z;
-
-    this.vertices[i++] = position.x + up.x + right.x;
-    this.vertices[i++] = position.y + up.y + right.y;
-    this.vertices[i++] = position.z + up.z + right.z;
-
-    this.vertices[i++] = position.x - up.x + right.x;
-    this.vertices[i++] = position.y - up.y + right.y;
-    this.vertices[i++] = position.z - up.z + right.z;
-
-    // Temporary Float32Array because it fails to compile
-    // at runtime (?) with Array<number>.
-    i = 0;
-    const vertices = new Float32Array([
-      this.vertices[i++],
-      this.vertices[i++],
-      this.vertices[i++],
-      this.vertices[i++],
-      this.vertices[i++],
-      this.vertices[i++],
-      this.vertices[i++],
-      this.vertices[i++],
-      this.vertices[i++],
-      this.vertices[i++],
-      this.vertices[i++],
-      this.vertices[i++],
-      this.vertices[i++],
-      this.vertices[i++],
-      this.vertices[i++],
-      this.vertices[i++],
-      this.vertices[i++],
-      this.vertices[i++],
-      this.vertices[i++],
-      this.vertices[i++],
-      this.vertices[i++],
-      this.vertices[i++],
-      this.vertices[i++],
-      this.vertices[i++],
-    ]);
-
-    const normals = new Float32Array(vertices.length);
-    for (let j = 0; j < vertices.length; ++j) {
-      normals[j] = 0;
-    }
-
-    const indices: number[] = [];
-    for (let j = 0; j < num_vertices - 1; ++j) {
-      indices.push(j);
-      indices.push(j + num_vertices);
-      indices.push(j + 1);
-      let normal = GetOrtho(vertices, j, j + num_vertices, j + 1);
-      normals[3 * j] = normal.x;
-      normals[3 * (j + num_vertices)] = normal.y;
-      normals[3 * (j + 1)] = normal.z;
-      //const a = new THREE.Vector3(vertices[]);
-      indices.push(j + 1);
-      indices.push(j + num_vertices);
-      indices.push(j + num_vertices + 1);
-      normal = GetOrtho(
-        vertices,
-        j + 1,
-        j + num_vertices,
-        j + num_vertices + 1
+  SaveRailProfile() {
+    if (this.previous_profile.length != this.current_profile.length) {
+      this.previous_profile = new Array<THREE.Vector3>(
+        this.current_profile.length
       );
-      normals[3 * (j + 1)] = normal.x;
-      normals[3 * (j + num_vertices)] = normal.y;
-      normals[3 * (j + num_vertices + 1)] = normal.z;
+    }
+    for (let i = 0; i < this.current_profile.length; ++i) {
+      this.previous_profile[i] = this.current_profile[i];
+    }
+  }
+
+  GenerateRailChunkFaceVertex(vertex: THREE.Vector3, normal: THREE.Vector3) {
+    while (this.vertices.length < this.vertex_counter) {
+      this.vertices.push(new THREE.Vector3());
+      this.normals.push(new THREE.Vector3());
+    }
+    this.vertices[this.vertex_counter] = vertex;
+    this.normals[this.vertex_counter] = normal;
+    ++this.vertex_counter;
+  }
+  GenerateRailChunkFace(a: THREE.Vector3, b: THREE.Vector3, c: THREE.Vector3) {
+    const ab = b.clone().sub(a);
+    const ac = c.clone().sub(a);
+    const normal = ab.clone().cross(ac).normalize();
+    this.GenerateRailChunkFaceVertex(a, normal);
+    this.GenerateRailChunkFaceVertex(b, normal);
+    this.GenerateRailChunkFaceVertex(c, normal);
+  }
+
+  GenerateRailChunk() {
+    if (this.previous_profile.length == 0) {
+      return;
+    }
+
+    this.vertex_counter = 0;
+    for (let i = 0; i < this.current_profile.length - 1; ++i) {
+      this.GenerateRailChunkFace(
+        this.previous_profile[i],
+        this.current_profile[i],
+        this.previous_profile[i + 1]
+      );
+      this.GenerateRailChunkFace(
+        this.previous_profile[i + 1],
+        this.current_profile[i],
+        this.current_profile[i + 1]
+      );
+    }
+
+    if (this.vertices_float.length == 0) {
+      this.vertices_float = new Float32Array(this.vertices.length * 3);
+      this.normals_float = new Float32Array(this.normals.length * 3);
+    }
+    for (let i = 0; i < this.vertices.length; ++i) {
+      this.vertices_float[i * 3] = this.vertices[i].x;
+      this.vertices_float[i * 3 + 1] = this.vertices[i].y;
+      this.vertices_float[i * 3 + 2] = this.vertices[i].z;
+      this.normals_float[i * 3] = this.normals[i].x;
+      this.normals_float[i * 3 + 1] = this.normals[i].y;
+      this.normals_float[i * 3 + 2] = this.normals[i].z;
     }
 
     const geometry = new THREE.BufferGeometry();
-    geometry.setIndex(indices);
-    geometry.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
-    geometry.setAttribute("normal", new THREE.BufferAttribute(normals, 3));
+    geometry.setAttribute(
+      "position",
+      new THREE.BufferAttribute(this.vertices_float, 3)
+    );
+    geometry.setAttribute(
+      "normal",
+      new THREE.BufferAttribute(this.normals_float, 3)
+    );
     const material = new THREE.MeshStandardMaterial({ color: 0xff0000 });
     const mesh = new THREE.Mesh(geometry, material);
     this.profiles.push(mesh);
