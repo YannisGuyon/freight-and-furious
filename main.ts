@@ -71,7 +71,7 @@ scene.add(camera_placeholder_container);
 const player = new Player(scene);
 
 const planet = new THREE.Mesh(
-  new THREE.SphereGeometry(6, 128, 128),
+  new THREE.SphereGeometry(6, 32, 32),
   new THREE.MeshStandardMaterial({ color: 0x123456 })
 );
 for (let i = 0; i < 30; ++i) {
