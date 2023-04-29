@@ -1,22 +1,16 @@
-# Fret&Furious
+# Freight&Furious
 
 https://ldjam.com/events/ludum-dare/53
 
-## Setup
+Theme: delivery
+
+## Instructions
 
 ```sh
 git clone https://github.com/YannisGuyon/freight-and-furious.git
 cd freight-and-furious
-mkdir deps
-cd deps
-git clone -b r152 --depth 1 https://github.com/mrdoob/three.js.git
-cd ..
+npm install
+npm run dev
 ```
 
-## Build
-
-```sh
-tsc
-```
-
-Note: Use the `-w` option for compiling changes as they are detected.
+Open http://localhost:8080/.
