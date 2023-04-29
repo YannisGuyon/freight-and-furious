@@ -3,6 +3,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { Player } from "./player";
+import { Rails } from "./rails";
 
 function CreateRenderer() {
   var canvas = document.createElement('canvas');
@@ -90,6 +91,8 @@ for (let i = 0; i < 30; ++i) {
 }
 scene.add(planet);
 
+const rails = new Rails(scene);
+
 const loader = new GLTFLoader();
 loader.load(
   // resource URL
@@ -175,7 +178,7 @@ var sky_shader = new THREE.ShaderMaterial({
   glslVersion: THREE.GLSL3,
 });
 sky_shader.depthWrite = false;
-var background_plane = new THREE.PlaneGeometry(2, 2);
+var background_plane = new THREE.PlaneGeometry(20, 20);
 var background_mesh = new THREE.Mesh(background_plane, sky_shader);
 scene_background.add(background_mesh);
 
@@ -191,16 +194,18 @@ function renderLoop() {
   requestAnimationFrame(renderLoop);
 
   player.Update(0.01);
-  //camera_placeholder_container.rotateX(-0.01);
+
   player.GetTrain().getWorldPosition(camera_placeholder.position);
+  camera_placeholder.translateY(3);
   player.GetTrain().getWorldQuaternion(camera_placeholder.quaternion);
+
+  rails.AddPoint(player.GetAbsolutePosition(), player.GetAbsoluteRotation());
 
   if (debug_camera) {
     controls.update();
   } else {
     camera_placeholder.getWorldPosition(camera.position);
     camera_placeholder.getWorldQuaternion(camera.quaternion);
-    //camera.rotateX(-1.8);
   }
   renderer.autoClear = false;
   renderer.clear();

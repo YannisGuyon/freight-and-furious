@@ -12,7 +12,7 @@ export class Player {
   is_go_left = false;
 
   constructor(scene: THREE.Object3D) {
-    this.empty.position.y = 7;
+    this.empty.position.y = 6;
     this.empty.rotateX(-Math.PI/4.0);
     const direction_representation = new THREE.Mesh(
       new THREE.ConeGeometry(0.2, 0.5),
@@ -57,5 +57,16 @@ export class Player {
 
   public GetTrain() {
     return this.path_representation[this.current_train_index];
+  }
+
+  public GetAbsolutePosition() {
+    const position = new THREE.Vector3();
+    this.empty.getWorldPosition(position);
+    return position;
+  }
+  public GetAbsoluteRotation() {
+    const rotation = new THREE.Quaternion();
+    this.empty.getWorldQuaternion(rotation);
+    return rotation;
   }
 }
