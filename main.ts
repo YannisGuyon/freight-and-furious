@@ -3,6 +3,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { Player } from "./player";
+import { Rails } from "./rails";
 
 // Environment
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -72,6 +73,8 @@ for (let i = 0; i < 30; ++i) {
 }
 scene.add(planet);
 
+const rails = new Rails(scene);
+
 const loader = new GLTFLoader();
 loader.load(
   // resource URL
@@ -131,6 +134,7 @@ function renderLoop() {
   requestAnimationFrame(renderLoop);
 
   player.Update(0.01);
+  rails.AddPoint(player.GetAbsolutePosition(), player.GetAbsoluteRotation());
   camera_placeholder_container.rotateX(-0.01);
 
   if (debug_camera) {

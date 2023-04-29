@@ -25,4 +25,15 @@ export class Player {
   public Update(step: number) {
     this.direction_container.rotateOnAxis(new THREE.Vector3(-1, 0, 0), step);
   }
+
+  public GetAbsolutePosition() {
+    const position = new THREE.Vector3();
+    this.direction.getWorldPosition(position);
+    return position;
+  }
+  public GetAbsoluteRotation() {
+    const rotation = new THREE.Quaternion();
+    this.direction.getWorldQuaternion(rotation);
+    return rotation;
+  }
 }
