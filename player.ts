@@ -1,39 +1,72 @@
 import * as THREE from "three";
 
+const length_player_path = 100;
+
 export class Player {
-  direction_container = new THREE.Object3D();
-  direction = new THREE.Object3D();
+  pivot = new THREE.Object3D();
+  empty = new THREE.Object3D();
+  path_representation = new Array<THREE.Object3D>(length_player_path);
+  current_player_index = 0;
+  current_train_index = 1;
+  is_go_right = false;
+  is_go_left = false;
 
   constructor(scene: THREE.Object3D) {
-    this.direction.position.y = 6;
-    this.direction.rotateX(-Math.PI * 0.5);
+    this.empty.position.y = 6;
+    this.empty.rotateX(-Math.PI/4.0);
     const direction_representation = new THREE.Mesh(
       new THREE.ConeGeometry(0.2, 0.5),
       new THREE.MeshStandardMaterial({ color: 0x66aa66 })
     );
-    this.direction.add(direction_representation);
-    this.direction_container.add(this.direction);
-    scene.add(this.direction_container);
+    this.empty.add(direction_representation);
+    this.pivot.add(this.empty);
+    scene.add(this.pivot);
+
+    for (let i = 0; i < length_player_path; i++) {
+      this.path_representation[i] = new THREE.Object3D();
+      scene.add(this.path_representation[i]);
+    }
   }
 
-  public MoveLeft() {
-    this.direction_container.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.2);
+  public StartMoveLeft() {
+    this.is_go_left = true;
   }
-  public MoveRight() {
-    this.direction_container.rotateOnAxis(new THREE.Vector3(0, 1, 0), -0.2);
+  public StartMoveRight() {
+    this.is_go_right = true;
   }
+  public EndMoveLeft() {
+    this.is_go_left = false;
+  }
+  public EndMoveRight() {
+    this.is_go_right = false;
+  }
+
   public Update(step: number) {
-    this.direction_container.rotateOnAxis(new THREE.Vector3(-1, 0, 0), step);
+    this.pivot.rotateOnAxis(new THREE.Vector3(-1, 0, 0), step);
+    this.empty.getWorldPosition(this.path_representation[this.current_player_index].position);
+    this.empty.getWorldQuaternion(this.path_representation[this.current_player_index].quaternion);
+    this.current_player_index = (this.current_player_index+1)%length_player_path;
+    this.current_train_index = (this.current_train_index+1)%length_player_path;
+
+    if (this.is_go_left&&!this.is_go_right) {
+      this.pivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.01);
+    } else if (!this.is_go_left&&this.is_go_right) {
+      this.pivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), -0.01);
+    }
+  }
+
+  public GetTrain() {
+    return this.path_representation[this.current_train_index];
   }
 
   public GetAbsolutePosition() {
     const position = new THREE.Vector3();
-    this.direction.getWorldPosition(position);
+    this.empty.getWorldPosition(position);
     return position;
   }
   public GetAbsoluteRotation() {
     const rotation = new THREE.Quaternion();
-    this.direction.getWorldQuaternion(rotation);
+    this.empty.getWorldQuaternion(rotation);
     return rotation;
   }
 }

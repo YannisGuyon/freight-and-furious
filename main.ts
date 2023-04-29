@@ -34,7 +34,7 @@ document.body.appendChild(renderer.domElement);
 const camera = new THREE.PerspectiveCamera(
   /*fov=*/ 80,
   /*aspect=*/ window.innerWidth / window.innerHeight,
-  /*near=*/ 0.1,
+  /*near=*/ 0.001,
   /*far=*/ 100
 );
 
@@ -56,18 +56,17 @@ spot.position.x = -20;
 spot.position.y = 20;
 spot.position.z = 20;
 
-const camera_placeholder_container = new THREE.Object3D();
+//const camera_placeholder_container = new THREE.Object3D();
 const camera_placeholder = new THREE.Object3D();
 camera_placeholder.position.y = 4;
 camera_placeholder.position.z = 5;
-camera_placeholder.rotateX(90);
+//camera_placeholder.rotateX(90);
 const camera_representation = new THREE.Mesh(
   new THREE.ConeGeometry(0.2, 1),
   new THREE.MeshStandardMaterial({ color: 0x996666 })
 );
 camera_placeholder.add(camera_representation);
-camera_placeholder_container.add(camera_placeholder);
-scene.add(camera_placeholder_container);
+scene.add(camera_placeholder);
 
 const player = new Player(scene);
 
@@ -135,9 +134,19 @@ function onDocumentKeyDown(event: KeyboardEvent) {
       camera.position.z = 20;
     }
   } else if (keyCode == "ArrowLeft") {
-    player.MoveLeft();
+    player.StartMoveLeft();
   } else if (keyCode == "ArrowRight") {
-    player.MoveRight();
+    player.StartMoveRight();
+  }
+}
+
+document.addEventListener("keyup", onDocumentKeyUp, false);
+function onDocumentKeyUp(event: KeyboardEvent) {
+  var keyCode = event.key;
+  if (keyCode == "ArrowLeft") {
+    player.EndMoveLeft();
+  } else if (keyCode == "ArrowRight") {
+    player.EndMoveRight();
   }
 }
 
@@ -169,7 +178,7 @@ var sky_shader = new THREE.ShaderMaterial({
   glslVersion: THREE.GLSL3,
 });
 sky_shader.depthWrite = false;
-var background_plane = new THREE.PlaneGeometry(2, 2);
+var background_plane = new THREE.PlaneGeometry(20, 20);
 var background_mesh = new THREE.Mesh(background_plane, sky_shader);
 scene_background.add(background_mesh);
 
@@ -185,15 +194,18 @@ function renderLoop() {
   requestAnimationFrame(renderLoop);
 
   player.Update(0.01);
+
+  player.GetTrain().getWorldPosition(camera_placeholder.position);
+  camera_placeholder.translateY(3);
+  player.GetTrain().getWorldQuaternion(camera_placeholder.quaternion);
+
   rails.AddPoint(player.GetAbsolutePosition(), player.GetAbsoluteRotation());
-  camera_placeholder_container.rotateX(-0.01);
 
   if (debug_camera) {
     controls.update();
   } else {
     camera_placeholder.getWorldPosition(camera.position);
-    camera_representation.getWorldQuaternion(camera.quaternion);
-    camera.rotateX(-1.8);
+    camera_placeholder.getWorldQuaternion(camera.quaternion);
   }
   renderer.autoClear = false;
   renderer.clear();
