@@ -1,10 +1,11 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
+import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
+import { Player } from "./player";
 
 // Environment
-const renderer = new THREE.WebGLRenderer({antialias: true});
+const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1;
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -48,8 +49,10 @@ camera_placeholder.add(camera_representation);
 camera_placeholder_container.add(camera_placeholder);
 scene.add(camera_placeholder_container);
 
+const player = new Player(scene);
+
 const planet = new THREE.Mesh(
-  new THREE.SphereGeometry(6),
+  new THREE.SphereGeometry(6, 128, 128),
   new THREE.MeshStandardMaterial({ color: 0x123456 })
 );
 for (let i = 0; i < 30; ++i) {
@@ -93,12 +96,10 @@ loader.load(
   }
 );
 
-new RGBELoader()
-  .setPath('resources/IBL/')
-  .load('IBL.hdr', function(texture) {
-    texture.mapping = THREE.EquirectangularReflectionMapping;
-    scene.environment = texture;
-  });
+new RGBELoader().setPath("resources/IBL/").load("IBL.hdr", function (texture) {
+  texture.mapping = THREE.EquirectangularReflectionMapping;
+  scene.environment = texture;
+});
 
 // Inputs
 document.addEventListener("keydown", onDocumentKeyDown, false);
@@ -107,10 +108,14 @@ function onDocumentKeyDown(event: KeyboardEvent) {
   if (keyCode == "Shift") {
     debug_camera = !debug_camera;
     if (debug_camera) {
-        camera.position.x = 0;
-        camera.position.y = 0;
-        camera.position.z = 20;
+      camera.position.x = 0;
+      camera.position.y = 0;
+      camera.position.z = 20;
     }
+  } else if (keyCode == "ArrowLeft") {
+    player.MoveLeft();
+  } else if (keyCode == "ArrowRight") {
+    player.MoveRight();
   }
 }
 
@@ -125,6 +130,7 @@ function onWindowResize() {
 function renderLoop() {
   requestAnimationFrame(renderLoop);
 
+  player.Update(0.01);
   camera_placeholder_container.rotateX(-0.01);
 
   if (debug_camera) {
