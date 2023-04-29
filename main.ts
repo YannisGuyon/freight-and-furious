@@ -1,9 +1,12 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 
 // Environment
-const renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer({antialias: true});
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1;
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 const camera = new THREE.PerspectiveCamera(
@@ -89,6 +92,13 @@ loader.load(
     console.log("An error happened: " + error);
   }
 );
+
+new RGBELoader()
+  .setPath('resources/IBL/')
+  .load('IBL.hdr', function(texture) {
+    texture.mapping = THREE.EquirectangularReflectionMapping;
+    scene.environment = texture;
+  });
 
 // Inputs
 document.addEventListener("keydown", onDocumentKeyDown, false);
