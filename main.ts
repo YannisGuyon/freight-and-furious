@@ -225,6 +225,41 @@ var background_plane = new THREE.PlaneGeometry(20, 20);
 var background_mesh = new THREE.Mesh(background_plane, sky_shader);
 scene_background.add(background_mesh);
 
+const scene_post_effect = new THREE.Scene();
+var uniforms_post_effect = {
+  damage: { value: 0.0 },
+  center: { type: "v2", value: new THREE.Vector2(1.0, 0.0) },
+};
+var post_effect_shader = new THREE.ShaderMaterial({
+  uniforms: uniforms_post_effect,
+  vertexShader: `
+    out vec2 out_uv;
+    void main() {
+      gl_Position = vec4(position.x, position.y, 0.0, 1.0);
+      out_uv = vec2(position.x/2.0+0.5, position.y/2.0+0.5);
+    }
+    `,
+  fragmentShader: `
+    precision highp float;
+    in vec2 out_uv;
+    out vec4 output_color;
+    uniform float damage;
+    uniform vec2 center;
+    void main() {
+      vec2 rescale_uv = out_uv;
+      rescale_uv *= 1.0-rescale_uv.yx;
+      float vig = pow(rescale_uv.x*rescale_uv.y*15.0, 0.25);
+      output_color = vec4(vig+damage, vig, vig, 1.0);
+    }
+  `,
+  glslVersion: THREE.GLSL3,
+  blending: THREE.MultiplyBlending,
+});
+post_effect_shader.depthWrite = false;
+var post_effect_plane = new THREE.PlaneGeometry(20, 20);
+var post_effect_mesh = new THREE.Mesh(post_effect_plane, post_effect_shader);
+scene_post_effect.add(post_effect_mesh);
+
 // Events
 window.addEventListener("resize", onWindowResize, false);
 function onWindowResize() {
@@ -294,6 +329,11 @@ function renderLoop(timestamp: number) {
       finished = true;
       encore_plus_gros_overlay.style.display = "block";
       console.log("finished");
+    }
+    if (uniforms_post_effect.damage.value > 0.0) {
+      uniforms_post_effect.damage.value -= 0.01;
+    } else {
+      uniforms_post_effect.damage.value = 0.0;
     }
   }
 
@@ -419,6 +459,7 @@ function renderLoop(timestamp: number) {
   if (playing && !finished) {
     var is_collide = planet.CheckCollision(train.GetAbsolutePosition());
     if (is_collide) {
+      uniforms_post_effect.damage.value = 0.6;
       collision_count++;
       document.getElementById("Score")!.textContent =
         "Score: " + collision_count.toString();
@@ -449,6 +490,7 @@ function renderLoop(timestamp: number) {
   renderer.clear();
   renderer.render(scene_background, camera);
   renderer.render(scene, camera);
+  renderer.render(scene_post_effect, camera);
 
   previous_timestamp = timestamp;
 }
