@@ -1,11 +1,11 @@
 import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { Planet } from "./planet";
 import { Player } from "./player";
 import { Rails } from "./rails";
 import { Sound } from "./sound";
+import { LoadTrain, LoadWagon, LoadWagonCoal } from "./gltf";
 
 let canvas = document.createElement("canvas");
 canvas.style.visibility = "hidden";
@@ -86,31 +86,15 @@ const rails = new Rails(scene);
 
 const train = new THREE.Object3D();
 scene.add(train);
-const loader = new GLTFLoader();
-loader.load(
-  // resource URL
-  "resources/gltf/old_train.glb",
-  // called when the resource is loaded
-  function (gltf) {
-    gltf.scene.scale.x = 0.001;
-    gltf.scene.scale.y = 0.001;
-    gltf.scene.scale.z = 0.001;
-    train.add(gltf.scene);
-    gltf.animations; // Array<THREE.AnimationClip>
-    gltf.scene; // THREE.Group
-    gltf.scenes; // Array<THREE.Group>
-    gltf.cameras; // Array<THREE.Camera>
-    gltf.asset; // Object
-  },
-  // called while loading is progressing
-  function (xhr) {
-    console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
-  },
-  // called when loading has errors
-  function (error) {
-    console.log("An error happened: " + error);
-  }
-);
+LoadTrain(train);
+const wagon_count = 4;
+const wagons = new Array<THREE.Object3D>(wagon_count);
+for (let i = 0; i < wagon_count; ++i) {
+  wagons[i] = new THREE.Object3D();
+  scene.add(wagons[i]);
+}
+LoadWagon(wagons);
+LoadWagonCoal(wagons);
 
 new RGBELoader().setPath("resources/IBL/").load("IBL.hdr", function (texture) {
   texture.mapping = THREE.EquirectangularReflectionMapping;
@@ -217,6 +201,7 @@ function renderLoop(timestamp: number) {
     let speed =
       speed_min +
       Math.min(speed_max - speed_min, (speed_max - speed_min) * (time / 30));
+    
     while (speed > 0) {
       player.Update(Math.min(speed, 0.001));
       rails.AddPoint(
@@ -224,12 +209,17 @@ function renderLoop(timestamp: number) {
         player.GetAbsoluteRotation()
       );
       speed -= 0.001;
+      player.UpdatePath();
     }
   }
 
   player.GetTrain().getWorldPosition(train.position);
   player.GetTrain().getWorldQuaternion(train.quaternion);
-
+  for (var i=0; i<wagon_count; ++i) {
+    player.GetWagon(i).getWorldPosition(wagons[i].position);
+    player.GetWagon(i).getWorldQuaternion(wagons[i].quaternion);
+  }
+  
   const ideal_camera_position = player.GetIdealCameraPosition(camera_distance);
   const ideal_camera_rotation = player.GetAbsoluteRotation();
 
