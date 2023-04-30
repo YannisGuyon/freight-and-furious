@@ -128,6 +128,9 @@ function onDocumentKeyDown(event: KeyboardEvent) {
     player.StartMoveRight();
   } else if (keyCode == " ") {
     debug_stop = !debug_stop;
+    document.getElementById("Pause")!.style.display = debug_stop
+      ? "block"
+      : "none";
   }
 }
 
@@ -413,11 +416,13 @@ function renderLoop(timestamp: number) {
   // );
   planet.ReduceBuildings(camera_placeholder.position);
 
-  var is_collide = planet.CheckCollision(train.GetAbsolutePosition());
-  if (is_collide) {
-    collision_count++;
-    document.getElementById("Collision")!.textContent =
-      "Collision count: " + collision_count.toString();
+  if (playing && !finished) {
+    var is_collide = planet.CheckCollision(train.GetAbsolutePosition());
+    if (is_collide) {
+      collision_count++;
+      document.getElementById("Score")!.textContent =
+        "Score: " + collision_count.toString();
+    }
   }
 
   document.getElementById("Fps")!.textContent =
