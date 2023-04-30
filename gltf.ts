@@ -71,3 +71,35 @@ export function LoadWagonCoal(wagons:Array<THREE.Object3D>) {
     }
   );
 }
+
+export function LoadRock(planet:THREE.Object3D, location_y:number, parent:Array<THREE.Object3D>, rock_count:number) {
+  loader.load(
+    // resource URL
+    "resources/gltf/rock1.glb",
+    // called when the resource is loaded
+    function (gltf) {
+      gltf.scene.position.y = location_y;
+      gltf.scene.scale.x = 0.002;
+      gltf.scene.scale.y = 0.002;
+      gltf.scene.scale.z = 0.002;
+      for (var i=0; i<rock_count; ++i) {
+        const building_parent = new THREE.Object3D();
+        building_parent.setRotationFromQuaternion(
+          new THREE.Quaternion().random()
+        );
+        planet.add(building_parent);
+        var rock = gltf.scene.clone();
+        building_parent.add(rock);
+        parent.push(rock);
+      }
+    },
+    // called while loading is progressing
+    function (xhr) {
+      console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+    },
+    // called when loading has errors
+    function (error) {
+      console.log("An error happened: " + error);
+    }
+  );
+}
