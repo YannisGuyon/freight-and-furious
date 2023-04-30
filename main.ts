@@ -5,6 +5,7 @@ import { Planet } from "./planet";
 import { Player } from "./player";
 import { Rails } from "./rails";
 import { Train } from "./train";
+import { Noise3D } from "./utils";
 
 function CreateRenderer() {
   let canvas = document.createElement("canvas");
@@ -152,8 +153,11 @@ function GameLoop(duration: number, factor: number) {
   let step = duration * speed;
   while (step > 0) {
     player.Update(Math.min(step, 0.001));
-    rails.AddPoint(player.GetAbsolutePosition(), player.GetAbsoluteRotation());
-    train.AddPoint(player.GetAbsolutePosition(), player.GetAbsoluteRotation());
+    const position = player.GetAbsolutePosition();
+    const displacement = 1 - Noise3D(position.clone().multiplyScalar(0.5)) * 0.05;
+    position.multiplyScalar(displacement);
+    rails.AddPoint(position, player.GetAbsoluteRotation());
+    train.AddPoint(position, player.GetAbsoluteRotation());
     step -= 0.001;
   }
 }
@@ -166,12 +170,15 @@ function StartPlaying() {
     // Kickstart trails
     for (let i = 0; i < 1000; ++i) {
       player.Update(0.001);
+      const position = player.GetAbsolutePosition();
+      const displacement = 1 - Noise3D(position.clone().multiplyScalar(0.5)) * 0.05;
+      position.multiplyScalar(displacement);
       rails.AddPoint(
-        player.GetAbsolutePosition(),
+        position,
         player.GetAbsoluteRotation()
       );
       train.AddPoint(
-        player.GetAbsolutePosition(),
+        position,
         player.GetAbsoluteRotation()
       );
       if (rails.IsLoaded()) {
@@ -395,8 +402,6 @@ function renderLoop(timestamp: number) {
   //   )
   // );
   planet.ReduceBuildings(camera_placeholder.position);
-
-  rails.AddPoint(player.GetAbsolutePosition(), player.GetAbsoluteRotation());
 
   var is_collide = planet.CheckCollision(train.GetAbsolutePosition());
   if (is_collide) {
