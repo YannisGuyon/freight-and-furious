@@ -98,11 +98,12 @@ const rails = new Rails(scene);
 const loader = new GLTFLoader();
 loader.load(
   // resource URL
-  "resources/gltf/monkey.glb",
+  "resources/gltf/old_train.glb",
   // called when the resource is loaded
   function (gltf) {
-    gltf.scene.position.x = 3;
-    scene.add(gltf.scene);
+    gltf.scene.position.y = -3;
+    gltf.scene.rotateX(Math.PI/4.0)
+    camera_placeholder.add(gltf.scene);
     gltf.animations; // Array<THREE.AnimationClip>
     gltf.scene; // THREE.Group
     gltf.scenes; // Array<THREE.Group>
