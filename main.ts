@@ -402,7 +402,7 @@ function renderLoop(timestamp: number) {
       pre_post_effect.SetDamage(0.6);
       collision_count++;
       document.getElementById("Score")!.textContent =
-        "Score: " + collision_count.toString();
+        "Damage: " + collision_count.toString();
     }
   }
   if (!debug_stop) {
