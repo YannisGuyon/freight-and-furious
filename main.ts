@@ -7,9 +7,13 @@ import { Player } from "./player";
 import { Rails } from "./rails";
 import { Sound } from "./sound";
 
+let canvas = document.createElement("canvas");
+canvas.style.visibility = "hidden";
+canvas.style.opacity = "0";
+canvas.style.transition = "opacity 2.3s";
+canvas.style.transition = "visibility 2.3s";
+var context = canvas.getContext("webgl2");
 function CreateRenderer() {
-  var canvas = document.createElement("canvas");
-  var context = canvas.getContext("webgl2");
   if (context) {
     return new THREE.WebGLRenderer({
       alpha: true,
@@ -185,8 +189,15 @@ function onWindowResize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.render(scene, camera);
 }
+let time = 0;
 function renderLoop() {
   requestAnimationFrame(renderLoop);
+
+  time += 0.01;
+  if (time > 2) {
+    canvas.style.visibility = "visible";
+    canvas.style.opacity = "" + Math.min(time - 2, 1);
+  }
 
   player.Update(0.01);
 
