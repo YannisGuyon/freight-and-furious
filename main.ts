@@ -49,6 +49,7 @@ const camera_distance = 5;
 
 const controls = new OrbitControls(camera, renderer.domElement);
 let debug_camera = false;
+let debug_stop = false;
 
 // Objects
 const scene = new THREE.Scene();
@@ -131,6 +132,8 @@ function onDocumentKeyDown(event: KeyboardEvent) {
     player.StartMoveLeft();
   } else if (keyCode == "ArrowRight") {
     player.StartMoveRight();
+  } else if (keyCode == " ") {
+    debug_stop = !debug_stop;
   }
 }
 
@@ -192,39 +195,56 @@ function onWindowResize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.render(scene, camera);
 }
+
+let previous_timestamp: null | number = null;
 let time = 0;
-function renderLoop() {
+function renderLoop(timestamp: number) {
   requestAnimationFrame(renderLoop);
 
-  time += 0.01;
-  if (time > 2) {
-    canvas.style.visibility = "visible";
-    canvas.style.opacity = "" + Math.min(time - 2, 1);
+  if (previous_timestamp == null) {
+    previous_timestamp = timestamp;
   }
+  if (!debug_stop) {
+    const duration = (timestamp - previous_timestamp) / 1000;
+    time += duration;
+    if (time > 1) {
+      canvas.style.visibility = "visible";
+      canvas.style.opacity = "" + Math.min(time - 1, 1);
+    }
 
-  player.Update(0.01);
+    const speed_min = 0.008;
+    const speed_max = 0.015;
+    let speed =
+      speed_min + Math.min(speed_max - speed_min, (speed_max - speed_min) * (time / 30));
+    while (speed > 0) {
+      player.Update(Math.min(speed, 0.001));
+      rails.AddPoint(
+        player.GetAbsolutePosition(),
+        player.GetAbsoluteRotation()
+      );
+      speed -= 0.001;
+    }
+  }
 
   player.GetTrain().getWorldPosition(train.position);
   player.GetTrain().getWorldQuaternion(train.quaternion);
-  
+
   const ideal_camera_position = player.GetIdealCameraPosition(camera_distance);
   const ideal_camera_rotation = player.GetAbsoluteRotation();
 
   camera_placeholder.position.lerpVectors(
     camera_placeholder.position,
     ideal_camera_position,
-    0.1
+    0.2
   );
   camera_placeholder.setRotationFromQuaternion(
     new THREE.Quaternion().slerpQuaternions(
       camera_placeholder.quaternion,
       ideal_camera_rotation,
-      0.1
+      0.2
     )
   );
   planet.ReduceBuildings(camera_placeholder.position);
-
-  rails.AddPoint(player.GetAbsolutePosition(), player.GetAbsoluteRotation());
 
   if (debug_camera) {
     controls.update();
@@ -236,5 +256,7 @@ function renderLoop() {
   renderer.clear();
   renderer.render(scene_background, camera);
   renderer.render(scene, camera);
+
+  previous_timestamp = timestamp;
 }
-renderLoop();
+renderLoop(0);

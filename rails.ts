@@ -20,10 +20,10 @@ class Rail {
   }
 
   public AddPoint(position: THREE.Vector3, rotation: THREE.Quaternion) {
-    if (this.last_position.clone().sub(position).length() < 0.1) {
+    if (this.last_position.clone().sub(position).length() < 0.3) {
       return;
     }
-    const up = new THREE.Vector3(0, 0, 0.01);
+    const up = new THREE.Vector3(0, 0.01, 0);
     const right = new THREE.Vector3(-0.01, 0, 0);
     up.applyQuaternion(rotation);
     right.applyQuaternion(rotation);
@@ -130,7 +130,7 @@ class Rail {
   }
 
   ClearOldProfiles() {
-    while (this.profiles.length > 100) {
+    while (this.profiles.length > 30) {
       this.container.remove(this.profiles[0]);
       this.profiles[0].clear();
       this.profiles.shift();
@@ -148,13 +148,13 @@ class Traverse {
   }
 
   public AddPoint(position: THREE.Vector3, rotation: THREE.Quaternion) {
-    if (this.last_position.clone().sub(position).length() < 0.1) {
+    if (this.last_position.clone().sub(position).length() < 0.15) {
       return;
     }
     // Lower a bit.
     const lower_position = position
       .clone()
-      .sub(new THREE.Vector3(0, 0, 0.001).applyQuaternion(rotation));
+      .sub(new THREE.Vector3(0, 0.01, 0).applyQuaternion(rotation));
 
     const box = new THREE.Mesh(
       new THREE.BoxGeometry(0.15, 0.02, 0.01),
