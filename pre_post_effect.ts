@@ -8,7 +8,7 @@ export class PrePostEffect {
   };
 
   scene_post_effect = new THREE.Scene();
-  uniforms_post_effect = {damage: {value: 0.0}};
+  uniforms_post_effect = {damage: {value: 0.0}, score: {value: 0.0}};
 
   constructor() {
     var sky_shader = new THREE.ShaderMaterial({
@@ -52,12 +52,13 @@ export class PrePostEffect {
         in vec2 out_uv;
         out vec4 output_color;
         uniform float damage;
+        uniform float score;
         uniform vec2 center;
         void main() {
           vec2 rescale_uv = out_uv;
           rescale_uv *= 1.0-rescale_uv.yx;
           float vig = pow(rescale_uv.x*rescale_uv.y*15.0, 0.25);
-          output_color = vec4(vig+damage, vig, vig, 1.0);
+          output_color = vec4(vig+damage, vig, vig+score, 1.0);
         }
       `,
       glslVersion: THREE.GLSL3,
@@ -75,6 +76,14 @@ export class PrePostEffect {
 
   public SetDamage(damage_value: number) {
     this.uniforms_post_effect.damage.value = damage_value;
+  }
+
+  public GetScore() {
+    return this.uniforms_post_effect.score.value;
+  }
+
+  public SetScore(score_value: number) {
+    this.uniforms_post_effect.score.value = score_value;
   }
 
   public PreRender(renderer:THREE.WebGLRenderer, camera:THREE.PerspectiveCamera) {

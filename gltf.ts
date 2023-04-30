@@ -113,3 +113,43 @@ export function LoadRock(planet:THREE.Object3D, location_y:number, parent:Array<
     }
   );
 }
+
+export function LoadCrate(planet:THREE.Object3D, location_y:number, parent:Array<THREE.Object3D>, crate_count:number) {
+  loader.load(
+    // resource URL
+    "resources/gltf/crate.glb",
+    // called when the resource is loaded
+    function (gltf) {
+      gltf.scene.position.y = location_y;
+      for (var i=0; i<crate_count; ++i) {
+        const crate_parent = new THREE.Object3D();
+        crate_parent.setRotationFromQuaternion(
+          new THREE.Quaternion().random()
+        );
+        planet.add(crate_parent);
+        const scaling = 0.001;
+        gltf.scene.scale.x = scaling;
+        gltf.scene.scale.y = scaling;
+        gltf.scene.scale.z = scaling;
+        var crate = gltf.scene.clone();
+        crate_parent.add(crate);
+        var world_space_position = new THREE.Vector3();
+        crate.getWorldPosition(world_space_position);
+        world_space_position.x *= 0.5;
+        world_space_position.y *= 0.5;
+        world_space_position.z *= 0.5;
+        const noise = Noise3D(world_space_position)*0.05;
+        crate.position.y -= location_y*noise;
+        parent.push(crate);
+      }
+    },
+    // called while loading is progressing
+    function () {
+      // console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+    },
+    // called when loading has errors
+    function (error) {
+      console.log("An error happened: " + error);
+    }
+  );
+}

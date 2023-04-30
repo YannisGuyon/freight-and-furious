@@ -27,6 +27,7 @@ function CreateRenderer() {
 }
 
 var collision_count = 0;
+var crate_count = 0;
 
 const renderer: THREE.WebGLRenderer = CreateRenderer();
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -272,6 +273,12 @@ function renderLoop(timestamp: number) {
     } else {
       pre_post_effect.SetDamage(0.0);
     }
+    const score = pre_post_effect.GetScore();
+    if (score > 0.0) {
+      pre_post_effect.SetScore(score-0.01);
+    } else {
+      pre_post_effect.SetScore(0.0);
+    }
   }
 
   const tip_position = player.GetAbsolutePosition();
@@ -401,8 +408,15 @@ function renderLoop(timestamp: number) {
     if (is_collide) {
       pre_post_effect.SetDamage(0.6);
       collision_count++;
-      document.getElementById("Score")!.textContent =
+      document.getElementById("Damage")!.textContent =
         "Damage: " + collision_count.toString();
+    }
+    var is_collide_crate = planet.CheckCollisionCrate(train.GetAbsolutePosition());
+    if (is_collide_crate) {
+      pre_post_effect.SetScore(0.6);
+      crate_count++;
+      document.getElementById("Score")!.textContent =
+      "Score: " + crate_count.toString();
     }
   }
   if (!debug_stop) {

@@ -221,10 +221,31 @@ html, body {
 
     transform: rotate(11deg);
 }
-#Score {
+#Damage {
     position: absolute;
     right: 10%;
     top: 10%;
+    height: 20%;
+
+    font-family: din-round, sans-serif;
+    font-size: 5em;
+    font-weight: 700;
+    letter-spacing: .8px;
+    white-space: nowrap;
+    color: #FFFFFF;
+    text-align: right;
+
+    text-shadow: 1px 1px 1px #919191,
+        1px 2px 1px #919191,
+        1px 3px 1px #919191,
+        1px 4px 1px #919191;
+
+    transform: rotate(11deg);
+}
+#Score {
+    position: absolute;
+    right: 10%;
+    top: 20%;
     height: 20%;
 
     font-family: din-round, sans-serif;

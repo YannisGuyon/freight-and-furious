@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { LoadRock } from "./gltf";
+import { LoadRock, LoadCrate } from "./gltf";
 
 const shrinking_angular_distance = Math.PI / 4;
 const collision_angular_distance = 0.02;
@@ -9,6 +9,9 @@ export class Planet {
   scene: THREE.Object3D;
   buildings = new Array<THREE.Object3D>();
   buildings_scale = new Array<number>();
+  planet = new THREE.Mesh();
+
+  crates = new Array<THREE.Object3D>();
 
   hit_buildings = new Array<THREE.Object3D>();
   hit_buildings_parent = new Array<THREE.Object3D>();
@@ -83,12 +86,13 @@ export class Planet {
       glslVersion: THREE.GLSL3,
     });
 
-    const planet = new THREE.Mesh(
+    this.planet = new THREE.Mesh(
       new THREE.SphereGeometry(planet_radius, 128, 64),
       shader
     );
-    LoadRock(planet, planet_radius, this.buildings, this.buildings_scale, 200);
-    scene.add(planet);
+    LoadRock(this.planet, planet_radius, this.buildings, this.buildings_scale, 200);
+    LoadCrate(this.planet, planet_radius, this.crates, 50);
+    scene.add(this.planet);
   }
 
   public ReduceBuildings(camera_position: THREE.Vector3) {
@@ -109,6 +113,19 @@ export class Planet {
       }
       index++;
     }
+  }
+
+  public CheckCollisionCrate(train_position: THREE.Vector3) {
+    for (let i = 0; i < this.crates.length; ++i) {
+      const crate_position = new THREE.Vector3();
+      this.crates[i].getWorldPosition(crate_position);
+      const angular_distance = crate_position.angleTo(train_position);
+      if (angular_distance < collision_angular_distance*2) {
+        this.crates[i].position.x = 1000;
+        return true;
+      }
+    }
+    return false;
   }
 
   public CheckCollision(
