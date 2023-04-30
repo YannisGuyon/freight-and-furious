@@ -96,14 +96,12 @@ export class Planet {
     }
   }
 
-  public CheckCollision(train: THREE.Object3D) {
+  public CheckCollision(train_position: THREE.Vector3) {
     var min_angle = 1000;
     var closest_building:THREE.Object3D|null = null;
     for (let building of this.buildings) {
       const building_position = new THREE.Vector3();
       building.getWorldPosition(building_position);
-      const train_position = new THREE.Vector3();
-      train.getWorldPosition(train_position);
       const angular_distance = building_position.angleTo(train_position);
       if (angular_distance < min_angle) {
         min_angle = angular_distance;
