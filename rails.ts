@@ -5,6 +5,7 @@ class Rail {
   profiles = new Array<THREE.Mesh>();
   readonly max_profiles = 30;
   last_position = new THREE.Vector3();
+  last_rotation = new THREE.Quaternion();
 
   current_profile = new Array<THREE.Vector3>();
   previous_profile = new Array<THREE.Vector3>();
@@ -21,7 +22,7 @@ class Rail {
   }
 
   public AddPoint(position: THREE.Vector3, rotation: THREE.Quaternion) {
-    if (this.last_position.clone().sub(position).length() < 0.3) {
+    if (this.last_position.distanceTo(position) < 0.3) {
       return;
     }
     const up = new THREE.Vector3(0, 0.01, 0);
@@ -36,7 +37,8 @@ class Rail {
     this.GenerateRailChunk();
     this.SaveRailProfile();
     this.ClearOldProfiles();
-    this.last_position = position;
+    this.last_position = position.clone();
+    this.last_rotation = rotation.clone();
   }
 
   GenerateRailProfile(
@@ -196,10 +198,20 @@ export class Rails {
   right: Rail;
   traverse: Traverse;
 
+  fake_parent_left = new THREE.Object3D();
+  fake_parent_right = new THREE.Object3D();
+  fake_front_left: Rail;
+  fake_front_right: Rail;
+
   constructor(scene: THREE.Object3D) {
     this.left = new Rail(scene);
     this.right = new Rail(scene);
     this.traverse = new Traverse(scene);
+
+    scene.add(this.fake_parent_left);
+    scene.add(this.fake_parent_right);
+    this.fake_front_left = new Rail(this.fake_parent_left);
+    this.fake_front_right = new Rail(this.fake_parent_right);
   }
 
   public AddPoint(position: THREE.Vector3, rotation: THREE.Quaternion) {
@@ -207,9 +219,44 @@ export class Rails {
     this.left.AddPoint(position.clone().sub(right), rotation);
     this.right.AddPoint(position.clone().add(right), rotation);
     this.traverse.AddPoint(position, rotation);
+
+    this.UpdateFakeFrontChunk();
+  }
+
+  UpdateFakeFrontChunk() {
+    if (this.fake_front_left.profiles.length == 0) {
+      const starting_position = new THREE.Vector3(0, 10, 0.1);
+      const a = new THREE.Object3D();
+      const b = new THREE.Object3D();
+      a.add(b);
+      b.position.copy(starting_position);
+      this.fake_front_left.last_position.copy(starting_position);
+      this.fake_front_right.last_position.copy(starting_position);
+      const b_pos = new THREE.Vector3();
+      const b_rot = new THREE.Quaternion();
+      for (let i = 0; i < 5; ++i) {
+        b.getWorldPosition(b_pos);
+        b.getWorldQuaternion(b_rot);
+        b_pos.sub(starting_position);
+        this.fake_front_left.AddPoint(b_pos, b_rot);
+        this.fake_front_right.AddPoint(b_pos, b_rot);
+        a.rotateX(Math.PI * -0.02);
+      }
+    }
+
+    if (this.left.last_position.length() != 0) {
+      this.fake_parent_left.position.copy(this.left.last_position);
+      this.fake_parent_left.quaternion.copy(this.left.last_rotation);
+    }
+    if (this.right.last_position.length() != 0) {
+      this.fake_parent_right.position.copy(this.right.last_position);
+      this.fake_parent_right.quaternion.copy(this.right.last_rotation);
+    }
   }
 
   public IsLoaded() {
-    return this.left.IsLoaded() && this.right.IsLoaded() && this.traverse.IsLoaded();
+    return (
+      this.left.IsLoaded() && this.right.IsLoaded() && this.traverse.IsLoaded()
+    );
   }
 }
