@@ -87,7 +87,7 @@ export class Planet {
       new THREE.SphereGeometry(planet_radius, 128, 64),
       shader
     );
-    LoadRock(planet, planet_radius, this.buildings, this.buildings_scale, 2000);
+    LoadRock(planet, planet_radius, this.buildings, this.buildings_scale, 200);
     scene.add(planet);
   }
 
