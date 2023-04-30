@@ -5,6 +5,7 @@ import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { Planet } from "./planet";
 import { Player } from "./player";
 import { Rails } from "./rails";
+import { Sound } from "./sound";
 
 function CreateRenderer() {
   var canvas = document.createElement("canvas");
@@ -38,6 +39,7 @@ const camera = new THREE.PerspectiveCamera(
   /*near=*/ 0.001,
   /*far=*/ 100
 );
+let sound: Sound | null = null;
 const planet_radius = 10;
 const camera_distance = 5;
 
@@ -128,10 +130,16 @@ function onDocumentKeyDown(event: KeyboardEvent) {
 document.addEventListener("keyup", onDocumentKeyUp, false);
 function onDocumentKeyUp(event: KeyboardEvent) {
   var keyCode = event.key;
+  let user_triggered_event = false;
   if (keyCode == "ArrowLeft") {
     player.EndMoveLeft();
+    user_triggered_event = true;
   } else if (keyCode == "ArrowRight") {
     player.EndMoveRight();
+    user_triggered_event = true;
+  }
+  if (user_triggered_event && sound == null) {
+    sound = new Sound(camera);
   }
 }
 
