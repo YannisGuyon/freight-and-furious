@@ -250,14 +250,19 @@ function KeepWithin(
 
 let previous_timestamp: null | number = null;
 let time = 0;
+let average_duration = 0.016;
 function renderLoop(timestamp: number) {
   requestAnimationFrame(renderLoop);
 
   if (previous_timestamp == null) {
     previous_timestamp = timestamp;
   }
-  //const duration = (timestamp - previous_timestamp) / 1000;
-  const duration = 0.016;
+  average_duration = THREE.MathUtils.lerp(
+    average_duration,
+    (timestamp - previous_timestamp) / 1000,
+    0.1
+  );
+  const duration = average_duration; // Can also be hardcoded to 0.016.
 
   let lerp_factor = 0.2;
   if (playing && gros_overlay_opacity > 0) {
@@ -415,7 +420,8 @@ function renderLoop(timestamp: number) {
       "Collision count: " + collision_count.toString();
   }
 
-  document.getElementById("Fps")!.textContent = duration.toString() + " ms";
+  document.getElementById("Fps")!.textContent =
+    average_duration.toString() + " ms";
 
   if (debug_camera) {
     controls.update();
