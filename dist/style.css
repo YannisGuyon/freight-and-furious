@@ -59,10 +59,10 @@ body {
 
 #PlayButton {
     position: relative;
-    top:25%;
-    bottom:25%;
-    left:25%;
-    right:25%;
+    top: 25%;
+    bottom: 25%;
+    left: 25%;
+    right: 25%;
     width: 50%;
     height: 50%;
 
@@ -128,3 +128,143 @@ body {
 #PlayButton:disabled {
     cursor: auto;
 }
+
+
+
+
+#EncorePlusGrosOverlay {
+    position: absolute;
+    background: rgb(2, 0, 36);
+    background: linear-gradient(346deg, rgba(2, 0, 36, 1) 20%, rgba(9, 71, 121, 0.425) 43%, rgba(87, 177, 195, 1) 91%);
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 25;
+    display: none;
+}
+
+
+#DeliverySuccess {
+    position: relative;
+    top: 20%;
+    right: 0%;
+    width: 100%;
+    height: 10%;
+
+    transform: translate(50%,-50%);
+    text-transform: uppercase;
+    font-family: verdana;
+    font-size: 12em;
+    font-weight: 700;
+    color: #f5f5f5;
+    text-shadow: 1px 1px 1px #919191,
+        1px 2px 1px #919191,
+        1px 3px 1px #919191,
+        1px 4px 1px #919191,
+        1px 5px 1px #919191,
+        1px 6px 1px #919191,
+        1px 7px 1px #919191,
+        1px 8px 1px #919191,
+        1px 9px 1px #919191,
+        1px 10px 1px #919191,
+    1px 18px 6px rgba(16,16,16,0.4),
+    1px 22px 10px rgba(16,16,16,0.2),
+    1px 25px 35px rgba(16,16,16,0.2),
+    1px 30px 60px rgba(16,16,16,0.4);
+
+    transform: rotate(11deg);
+}
+#Score {
+    position: absolute;
+    right: 10%;
+    top: 10%;
+    width: 10%;
+    height: 20%;
+
+    font-family: din-round, sans-serif;
+    font-size: 4em;
+    font-weight: 700;
+    letter-spacing: .8px;
+    white-space: nowrap;
+    color: #FFFFFF;
+    text-align: right;
+
+    text-shadow: 1px 1px 1px #919191,
+        1px 2px 1px #919191,
+        1px 3px 1px #919191,
+        1px 4px 1px #919191;
+}
+
+#ReplayButton {
+    position: absolute;
+    right: 10%;
+    bottom: 10%;
+    width: 20%;
+    height: 20%;
+
+    appearance: button;
+    background-color: #1899D6;
+    border: solid transparent;
+    border-radius: 16px;
+    border-width: 0 0 4px;
+    box-sizing: border-box;
+    color: #FFFFFF;
+    cursor: pointer;
+    display: inline-block;
+    font-family: din-round, sans-serif;
+    font-size: 3em;
+    font-weight: 700;
+    letter-spacing: .8px;
+    line-height: 20px;
+    margin: 0;
+    outline: none;
+    overflow: visible;
+    padding: 13px 16px;
+    text-align: center;
+    text-transform: uppercase;
+    touch-action: manipulation;
+    transform: translateZ(0);
+    transition: filter .2s;
+    user-select: none;
+    -webkit-user-select: none;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+#ReplayButton:after {
+    background-clip: padding-box;
+    background-color: #1CB0F6;
+    border: solid transparent;
+    border-radius: 16px;
+    border-width: 0 0 4px;
+    bottom: -4px;
+    content: "";
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: -1;
+}
+
+#ReplayButton:main,
+#ReplayButton:focus {
+    user-select: auto;
+}
+
+#ReplayButton:hover:not(:disabled):not(:active) {
+    filter: brightness(1.1);
+    -webkit-filter: brightness(1.1);
+}
+
+#ReplayButton:active {
+    filter: brightness(0.6);
+    -webkit-filter: brightness(0.6);
+}
+
+#ReplayButton:disabled {
+    cursor: auto;
+}
+
+
+

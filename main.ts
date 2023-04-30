@@ -87,9 +87,12 @@ scene.add(camera_placeholder);
 
 const player = new Player(scene, planet_radius);
 let playing = false;
+let finished = false;
 const gros_overlay = document.getElementById("GrosOverlay")!;
+const encore_plus_gros_overlay = document.getElementById("EncorePlusGrosOverlay")!;
 let gros_overlay_opacity = 1;
 const play_button = document.getElementById("PlayButton")!;
+const replay_button = document.getElementById("ReplayButton")!;
 
 const planet = new Planet(scene, planet_radius);
 
@@ -105,6 +108,9 @@ new RGBELoader().setPath("resources/IBL/").load("IBL.hdr", function (texture) {
 // Inputs
 document.addEventListener("keydown", onDocumentKeyDown, false);
 function onDocumentKeyDown(event: KeyboardEvent) {
+  if (finished) {
+    return;
+  }
   var keyCode = event.key;
   if (keyCode == "Shift") {
     debug_camera = !debug_camera;
@@ -124,21 +130,16 @@ function onDocumentKeyDown(event: KeyboardEvent) {
 
 document.addEventListener("keyup", onDocumentKeyUp, false);
 function onDocumentKeyUp(event: KeyboardEvent) {
+  if (finished) {
+    return;
+  }
   var keyCode = event.key;
-  let user_triggered_event = false;
   if (keyCode == "ArrowLeft") {
     StartPlaying();
     player.EndMoveLeft();
-    user_triggered_event = true;
   } else if (keyCode == "ArrowRight") {
     StartPlaying();
     player.EndMoveRight();
-    user_triggered_event = true;
-  }
-  if (user_triggered_event) {
-    // Avoids "The AudioContext was not allowed to start.
-    // It must be resumed (or created) after a user gesture on the page."
-    //sound = new Sound(camera);
   }
 }
 
@@ -180,6 +181,9 @@ function StartPlaying() {
   }
 }
 play_button.addEventListener("click", StartPlaying);
+replay_button.addEventListener("click", () => {
+  location.reload();
+});
 
 const scene_background = new THREE.Scene();
 var uniforms_background = {
@@ -260,10 +264,10 @@ function renderLoop(timestamp: number) {
     lerp_factor = 1;
   }
 
-  if (playing && !debug_stop) {
+  if (playing && !debug_stop && !finished) {
     time += duration;
 
-    const factor = Math.max(0, Math.min(1, (time - 1) / 30));
+    const factor = Math.max(0, Math.min(1, (time - 1) / 5));
     GameLoop(duration, factor);
 
     const sound_element = document.getElementById("Sound")! as HTMLMediaElement;
@@ -272,10 +276,12 @@ function renderLoop(timestamp: number) {
     const map_position = document.getElementById("MapPosition")!;
     map_position.style.transform =
       "rotate(" + (factor * 180 - 90).toString() + "deg)";
-    // transform: rotate(90deg);
-
-    // document.getElementById("Debug")!.textContent =
-    //   "Factor " + factor.toString();
+      
+      if (factor == 1) {
+        finished = true;
+        encore_plus_gros_overlay.style.display = "block";
+        console.log("finished");
+      }
   }
 
   const tip_position = player.GetAbsolutePosition();
