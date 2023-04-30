@@ -75,6 +75,16 @@ camera_representation.rotateX(Math.PI * 0.5);
 camera_placeholder.add(camera_representation);
 scene.add(camera_placeholder);
 
+// Debug cube
+// const box = new THREE.Mesh(
+//   new THREE.BoxGeometry(0.1, 0.1, 0.1),
+//   new THREE.MeshStandardMaterial({ color: 0xff0000 })
+// );
+// scene.add(box);
+// box.position.x = ideal_camera_position.x;
+// box.position.y = ideal_camera_position.y;
+// box.position.z = ideal_camera_position.z;
+
 const player = new Player(scene, planet_radius);
 let playing = false;
 const gros_overlay = document.getElementById("GrosOverlay")!;
@@ -133,7 +143,7 @@ function onDocumentKeyUp(event: KeyboardEvent) {
 }
 
 function GameLoop(duration: number, factor: number) {
-  const speed_min = 1.5;
+  const speed_min = 0.5;
   const speed_max = 2.0;
   const speed =
     speed_min +
@@ -219,12 +229,14 @@ function KeepWithin(
   fixed_elevation: number
 ) {
   const object_to_target = target.clone().sub(object.position);
-  object_to_target.setLength(max_distance);
-  const new_object_position = target.clone().sub(object_to_target);
-  new_object_position.setLength(fixed_elevation);
-  object.position.x = new_object_position.x;
-  object.position.y = new_object_position.y;
-  object.position.z = new_object_position.z;
+  if (object_to_target.length() > max_distance) {
+    object_to_target.setLength(max_distance);
+    const new_object_position = target.clone().sub(object_to_target);
+    new_object_position.setLength(fixed_elevation);
+    object.position.x = new_object_position.x;
+    object.position.y = new_object_position.y;
+    object.position.z = new_object_position.z;
+  }
 }
 
 let previous_timestamp: null | number = null;
@@ -293,12 +305,12 @@ function renderLoop(timestamp: number) {
       ideal_camera_position.length()
     );
 
-    // KeepWithin(
-    //   camera_placeholder,
-    //   ideal_camera_position,
-    //   ideal_to_tip.length() * 0.5,
-    //   ideal_camera_position.length()
-    // );
+    KeepWithin(
+      camera_placeholder,
+      ideal_camera_position,
+      ideal_to_tip.length() * 0.8,
+      ideal_camera_position.length()
+    );
 
     // camera_placeholder.setRotationFromQuaternion(ideal_camera_rotation);
     // camera_placeholder.setRotationFromQuaternion(
@@ -398,7 +410,8 @@ function renderLoop(timestamp: number) {
     } else {
       camera_representation.getWorldPosition(camera.position);
       camera_representation.getWorldQuaternion(camera.quaternion);
-    camera.rotateX(Math.PI * 0.5);}
+      camera.rotateX(Math.PI * 0.5);
+    }
   }
   renderer.autoClear = false;
   renderer.clear();

@@ -29,9 +29,9 @@ export class Player {
     this.pivot.rotateOnAxis(new THREE.Vector3(-1, 0, 0), step);
 
     if (this.is_go_left && !this.is_go_right) {
-      this.pivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), step * 4);
+      this.pivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), step * 3);
     } else if (!this.is_go_left && this.is_go_right) {
-      this.pivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), -step * 4);
+      this.pivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), -step * 3);
     }
   }
 
