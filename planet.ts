@@ -8,16 +8,21 @@ const collision_angular_distance = 0.02;
 export class Planet {
   buildings = new Array<THREE.Object3D>();
   buildings_scale = new Array<number>();
-  current_collision:THREE.Object3D|null = null;
+  current_collision: THREE.Object3D | null = null;
 
   constructor(scene: THREE.Object3D, planet_radius: number) {
-
     const texture_loader = new THREE.TextureLoader();
     var uniforms = {
-      sand: { type: "t", value: texture_loader.load(
-        "resources/texture/sand.png",
-        function (texture) {texture.repeat = new THREE.Vector2(1000, 1000);}) },
-      planet_radius: {type: "f", value: planet_radius},
+      sand: {
+        type: "t",
+        value: texture_loader.load(
+          "resources/texture/sand.png",
+          function (texture) {
+            texture.repeat = new THREE.Vector2(1000, 1000);
+          }
+        ),
+      },
+      planet_radius: { type: "f", value: planet_radius },
     };
     var shader = new THREE.ShaderMaterial({
       uniforms: uniforms,
@@ -74,7 +79,7 @@ export class Planet {
 
     const planet = new THREE.Mesh(
       new THREE.SphereGeometry(planet_radius, 128, 64),
-      shader,
+      shader
     );
     LoadRock(planet, planet_radius, this.buildings, this.buildings_scale, 200);
     scene.add(planet);
@@ -87,11 +92,12 @@ export class Planet {
       building.getWorldPosition(building_position);
       const angular_distance = building_position.angleTo(camera_position);
       if (angular_distance < shrinking_angular_distance) {
-        const factor_y = 0.4 + 0.6 * (angular_distance / shrinking_angular_distance);
+        const factor_y =
+          0.4 + 0.6 * (angular_distance / shrinking_angular_distance);
         const factor_xz = 0.2 + 0.8 * factor_y;
-        building.scale.x = factor_xz*this.buildings_scale[index];
-        building.scale.y = factor_y*this.buildings_scale[index];
-        building.scale.z = factor_xz*this.buildings_scale[index];
+        building.scale.x = factor_xz * this.buildings_scale[index];
+        building.scale.y = factor_y * this.buildings_scale[index];
+        building.scale.z = factor_xz * this.buildings_scale[index];
       } else {
         building.scale.y = this.buildings_scale[index];
       }
@@ -101,7 +107,7 @@ export class Planet {
 
   public CheckCollision(train_position: THREE.Vector3) {
     var min_angle = 1000;
-    var closest_building:THREE.Object3D|null = null;
+    var closest_building: THREE.Object3D | null = null;
     for (let building of this.buildings) {
       const building_position = new THREE.Vector3();
       building.getWorldPosition(building_position);
@@ -111,7 +117,11 @@ export class Planet {
         closest_building = building;
       }
     }
-    if (closest_building !== null && this.current_collision === null && min_angle < collision_angular_distance) {
+    if (
+      closest_building !== null &&
+      this.current_collision === null &&
+      min_angle < collision_angular_distance
+    ) {
       this.current_collision = closest_building;
       return true;
     }

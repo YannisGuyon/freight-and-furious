@@ -280,7 +280,7 @@ function renderLoop(timestamp: number) {
   if (playing && !debug_stop && !finished) {
     time += duration;
 
-    const factor = Math.max(0, Math.min(1, (time - 1) / 5));
+    const factor = Math.max(0, Math.min(1, (time - 1) / 60));
     GameLoop(duration, factor);
 
     const sound_element = document.getElementById("Sound")! as HTMLMediaElement;

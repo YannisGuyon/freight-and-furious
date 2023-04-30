@@ -165,7 +165,7 @@ class Traverse {
       .sub(new THREE.Vector3(0, 0.01, 0).applyQuaternion(rotation));
 
     const box = new THREE.Mesh(
-      new THREE.BoxGeometry(0.15, 0.02, 0.01),
+      new THREE.BoxGeometry(0.15, 0.02, 0.05),
       new THREE.MeshStandardMaterial({ color: 0x503540 })
     );
     box.position.x = lower_position.x;

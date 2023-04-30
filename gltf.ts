@@ -17,8 +17,8 @@ export function LoadTrain(train:THREE.Object3D) {
       train.add(gltf.scene);
     },
     // called while loading is progressing
-    function (xhr) {
-      console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+    function () {
+      // console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
     },
     // called when loading has errors
     function (error) {
@@ -41,8 +41,8 @@ export function LoadWagon(wagons:Array<THREE.Object3D>) {
       wagons[3].add(gltf.scene.clone());
     },
     // called while loading is progressing
-    function (xhr) {
-      console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+    function () {
+      // console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
     },
     // called when loading has errors
     function (error) {
@@ -63,8 +63,8 @@ export function LoadWagonCoal(wagons:Array<THREE.Object3D>) {
       wagons[0].add(gltf.scene);
     },
     // called while loading is progressing
-    function (xhr) {
-      console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+    function () {
+      // console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
     },
     // called when loading has errors
     function (error) {
@@ -104,8 +104,8 @@ export function LoadRock(planet:THREE.Object3D, location_y:number, parent:Array<
       }
     },
     // called while loading is progressing
-    function (xhr) {
-      console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+    function () {
+      // console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
     },
     // called when loading has errors
     function (error) {
