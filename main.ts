@@ -204,8 +204,8 @@ function renderLoop(timestamp: number) {
   if (previous_timestamp == null) {
     previous_timestamp = timestamp;
   }
+  const duration = (timestamp - previous_timestamp) / 1000;
   if (!debug_stop) {
-    const duration = (timestamp - previous_timestamp) / 1000;
     time += duration;
     if (time > 1) {
       canvas.style.visibility = "visible";
@@ -215,7 +215,8 @@ function renderLoop(timestamp: number) {
     const speed_min = 0.008;
     const speed_max = 0.015;
     let speed =
-      speed_min + Math.min(speed_max - speed_min, (speed_max - speed_min) * (time / 30));
+      speed_min +
+      Math.min(speed_max - speed_min, (speed_max - speed_min) * (time / 30));
     while (speed > 0) {
       player.Update(Math.min(speed, 0.001));
       rails.AddPoint(
@@ -251,11 +252,11 @@ function renderLoop(timestamp: number) {
   var is_collide = planet.CheckCollision(train);
   if (is_collide) {
     collision_count++;
-    var score_element = document.getElementById("Collision");
-    if (score_element) {
-      score_element.textContent="Collision count: "+collision_count.toString();
-    }
+    document.getElementById("Collision")!.textContent =
+      "Collision count: " + collision_count.toString();
   }
+
+  document.getElementById("Fps")!.textContent = duration.toString() + " ms";
 
   if (debug_camera) {
     controls.update();
