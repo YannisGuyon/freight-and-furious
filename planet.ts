@@ -7,6 +7,7 @@ const collision_angular_distance = 0.02;
 
 export class Planet {
   buildings = new Array<THREE.Object3D>();
+  buildings_scale = new Array<number>();
   current_collision:THREE.Object3D|null = null;
 
   constructor(scene: THREE.Object3D, planet_radius: number) {
@@ -75,11 +76,12 @@ export class Planet {
       new THREE.SphereGeometry(planet_radius, 128, 64),
       shader,
     );
-    LoadRock(planet, planet_radius, this.buildings, 200);
+    LoadRock(planet, planet_radius, this.buildings, this.buildings_scale, 200);
     scene.add(planet);
   }
 
   public ReduceBuildings(camera_position: THREE.Vector3) {
+    var index = 0;
     for (let building of this.buildings) {
       const building_position = new THREE.Vector3();
       building.getWorldPosition(building_position);
@@ -87,12 +89,13 @@ export class Planet {
       if (angular_distance < shrinking_angular_distance) {
         const factor_y = 0.4 + 0.6 * (angular_distance / shrinking_angular_distance);
         const factor_xz = 0.2 + 0.8 * factor_y;
-        building.scale.x = factor_xz*0.002;
-        building.scale.y = factor_y*0.002;
-        building.scale.z = factor_xz*0.002;
+        building.scale.x = factor_xz*this.buildings_scale[index];
+        building.scale.y = factor_y*this.buildings_scale[index];
+        building.scale.z = factor_xz*this.buildings_scale[index];
       } else {
-        building.scale.y = 0.002;
+        building.scale.y = this.buildings_scale[index];
       }
+      index++;
     }
   }
 
