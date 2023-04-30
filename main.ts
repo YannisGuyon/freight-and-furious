@@ -292,7 +292,11 @@ function renderLoop(timestamp: number) {
   }
 
   const tip_position = player.GetAbsolutePosition();
+  if (finished) {
+    train.LaunchIntoSpace();
+  }else {
   train.SetPosition(tip_position);
+  }
 
   const ideal_camera_position = player.GetIdealCameraPosition(camera_distance);
   const ideal_camera_rotation = player.GetAbsoluteRotation();
