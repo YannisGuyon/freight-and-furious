@@ -73,22 +73,24 @@ export function LoadWagonCoal(wagons:Array<THREE.Object3D>) {
   );
 }
 
-export function LoadRock(planet:THREE.Object3D, location_y:number, parent:Array<THREE.Object3D>, rock_count:number) {
+export function LoadRock(planet:THREE.Object3D, location_y:number, parent:Array<THREE.Object3D>, buildings_scale:Array<number>, rock_count:number) {
   loader.load(
     // resource URL
     "resources/gltf/rock1.glb",
     // called when the resource is loaded
     function (gltf) {
       gltf.scene.position.y = location_y;
-      gltf.scene.scale.x = 0.002;
-      gltf.scene.scale.y = 0.002;
-      gltf.scene.scale.z = 0.002;
       for (var i=0; i<rock_count; ++i) {
         const building_parent = new THREE.Object3D();
         building_parent.setRotationFromQuaternion(
           new THREE.Quaternion().random()
         );
         planet.add(building_parent);
+        const scaling = 0.0005+Math.random()*0.001;
+        buildings_scale.push(scaling);
+        gltf.scene.scale.x = scaling;
+        gltf.scene.scale.y = scaling;
+        gltf.scene.scale.z = scaling;
         var rock = gltf.scene.clone();
         building_parent.add(rock);
         var world_space_position = new THREE.Vector3();
