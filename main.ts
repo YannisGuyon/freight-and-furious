@@ -6,11 +6,9 @@ import { Player } from "./player";
 import { Rails } from "./rails";
 import { LoadTrain, LoadWagon, LoadWagonCoal } from "./gltf";
 
-let canvas = document.createElement("canvas");
-canvas.style.visibility = "hidden";
-canvas.style.opacity = "0";
-var context = canvas.getContext("webgl2");
 function CreateRenderer() {
+  let canvas = document.createElement("canvas");
+  var context = canvas.getContext("webgl2");
   if (context) {
     return new THREE.WebGLRenderer({
       alpha: true,
@@ -77,6 +75,10 @@ camera_placeholder.add(camera_representation);
 scene.add(camera_placeholder);
 
 const player = new Player(scene, planet_radius);
+let playing = false;
+const gros_overlay = document.getElementById("GrosOverlay")!;
+let gros_overlay_opacity = 1;
+const play_button = document.getElementById("PlayButton")!;
 
 const planet = new Planet(scene, planet_radius);
 
@@ -124,9 +126,11 @@ function onDocumentKeyUp(event: KeyboardEvent) {
   var keyCode = event.key;
   let user_triggered_event = false;
   if (keyCode == "ArrowLeft") {
+    StartPlaying();
     player.EndMoveLeft();
     user_triggered_event = true;
   } else if (keyCode == "ArrowRight") {
+    StartPlaying();
     player.EndMoveRight();
     user_triggered_event = true;
   }
@@ -137,11 +141,41 @@ function onDocumentKeyUp(event: KeyboardEvent) {
   }
 }
 
-document.addEventListener("keydown", startSound, {passive: true, once: true});
-function startSound() {
-  const sound_element = document.getElementById("Sound")! as HTMLMediaElement;
-  sound_element.play();
+function GameLoop(duration: number, factor: number) {
+  const speed_min = 0.05;
+  const speed_max = 2.0;
+  const speed =
+    speed_min +
+    Math.min(speed_max - speed_min, (speed_max - speed_min) * factor);
+  let step = duration * speed;
+  while (step > 0) {
+    player.Update(Math.min(step, 0.001));
+    rails.AddPoint(player.GetAbsolutePosition(), player.GetAbsoluteRotation());
+    step -= 0.001;
+  }
 }
+function StartPlaying() {
+  if (!playing) {
+    playing = true;
+    const sound_element = document.getElementById("Sound")! as HTMLMediaElement;
+    sound_element.play();
+
+    // Kickstart trails
+    for (let i = 0; i < 1000; ++i) {
+      player.Update(0.001);
+      rails.AddPoint(
+        player.GetAbsolutePosition(),
+        player.GetAbsoluteRotation()
+      );
+      if (rails.IsLoaded()) {
+        console.log("enough " + i);
+        break;
+      }
+      player.UpdatePath();
+    }
+  }
+}
+play_button.addEventListener("click", StartPlaying);
 
 const scene_background = new THREE.Scene();
 var uniforms_background = {
@@ -193,35 +227,30 @@ function renderLoop(timestamp: number) {
     previous_timestamp = timestamp;
   }
   const duration = (timestamp - previous_timestamp) / 1000;
-  if (!debug_stop) {
-    time += duration;
-    if (time > 1) {
-      canvas.style.visibility = "visible";
-      canvas.style.opacity = "" + Math.min(time - 1, 1);
+
+  let lerp_factor = 0.2;
+  if (playing && gros_overlay_opacity > 0) {
+    gros_overlay_opacity = Math.max(0, gros_overlay_opacity - duration);
+    gros_overlay.style.opacity = gros_overlay_opacity.toString();
+    if (gros_overlay_opacity == 0) {
+      gros_overlay.style.display = "none";
     }
+    lerp_factor = 1;
+  }
+
+  if (playing && !debug_stop) {
+    time += duration;
 
     const factor = Math.max(0, Math.min(1, (time - 1) / 30));
-    const speed_min = 0.008;
-    const speed_max = 0.025;
-    const speed =
-      speed_min +
-      Math.min(speed_max - speed_min, (speed_max - speed_min) * factor);
-    let remaining_speed = speed;
-    while (remaining_speed > 0) {
-      player.Update(Math.min(remaining_speed, 0.001));
-      rails.AddPoint(
-        player.GetAbsolutePosition(),
-        player.GetAbsoluteRotation()
-      );
-      player.UpdatePath();
-      remaining_speed -= 0.001;
-    }
+    GameLoop(duration, factor);
+    player.UpdatePath();
 
     const sound_element = document.getElementById("Sound")! as HTMLMediaElement;
     sound_element.playbackRate = Math.max(1, Math.min(2, 1 + factor * 1));
 
     const map_position = document.getElementById("MapPosition")!;
-    map_position.style.transform = "rotate(" + (factor * 180 - 90).toString() + "deg)";
+    map_position.style.transform =
+      "rotate(" + (factor * 180 - 90).toString() + "deg)";
     // transform: rotate(90deg);
 
     // document.getElementById("Debug")!.textContent =
@@ -241,13 +270,13 @@ function renderLoop(timestamp: number) {
   camera_placeholder.position.lerpVectors(
     camera_placeholder.position,
     ideal_camera_position,
-    0.2
+    lerp_factor
   );
   camera_placeholder.setRotationFromQuaternion(
     new THREE.Quaternion().slerpQuaternions(
       camera_placeholder.quaternion,
       ideal_camera_rotation,
-      0.2
+      lerp_factor
     )
   );
   planet.ReduceBuildings(camera_placeholder.position);
