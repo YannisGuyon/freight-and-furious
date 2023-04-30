@@ -29,10 +29,6 @@ export class Planet {
         new THREE.Quaternion().random()
       );
       planet.add(building_parent);
-      building.geometry.computeBoundingBox();
-      var helper = new THREE.BoxHelper(building_parent, 0xff0000);
-      helper.update();
-      scene.add(helper);
     }
     scene.add(planet);
   }
