@@ -152,6 +152,7 @@ function GameLoop(duration: number, factor: number) {
     player.Update(Math.min(step, 0.001));
     rails.AddPoint(player.GetAbsolutePosition(), player.GetAbsoluteRotation());
     step -= 0.001;
+    player.UpdatePath();
   }
 }
 function StartPlaying() {
@@ -243,7 +244,6 @@ function renderLoop(timestamp: number) {
 
     const factor = Math.max(0, Math.min(1, (time - 1) / 30));
     GameLoop(duration, factor);
-    player.UpdatePath();
 
     const sound_element = document.getElementById("Sound")! as HTMLMediaElement;
     sound_element.playbackRate = Math.max(1, Math.min(2, 1 + factor * 1));
