@@ -23,8 +23,8 @@ class Rail {
     if (this.last_position.clone().sub(position).length() < 0.1) {
       return;
     }
-    const up = new THREE.Vector3(0, 0, 0.1);
-    const right = new THREE.Vector3(-0.1, 0, 0);
+    const up = new THREE.Vector3(0, 0, 0.01);
+    const right = new THREE.Vector3(-0.01, 0, 0);
     up.applyQuaternion(rotation);
     right.applyQuaternion(rotation);
 
@@ -119,14 +119,18 @@ class Rail {
       "normal",
       new THREE.BufferAttribute(this.normals_float, 3)
     );
-    const material = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+    const material = new THREE.MeshStandardMaterial({
+      color: 0x787879,
+      metalness: 1,
+      roughness: 0,
+    });
     const mesh = new THREE.Mesh(geometry, material);
     this.profiles.push(mesh);
     this.container.add(mesh);
   }
 
   ClearOldProfiles() {
-    while (this.profiles.length > 50) {
+    while (this.profiles.length > 100) {
       this.container.remove(this.profiles[0]);
       this.profiles[0].clear();
       this.profiles.shift();
@@ -144,16 +148,16 @@ class Traverse {
   }
 
   public AddPoint(position: THREE.Vector3, rotation: THREE.Quaternion) {
-    if (this.last_position.clone().sub(position).length() < 0.5) {
+    if (this.last_position.clone().sub(position).length() < 0.1) {
       return;
     }
     // Lower a bit.
     const lower_position = position
       .clone()
-      .sub(new THREE.Vector3(0, 0, 0.01).applyQuaternion(rotation));
+      .sub(new THREE.Vector3(0, 0, 0.001).applyQuaternion(rotation));
 
     const box = new THREE.Mesh(
-      new THREE.BoxGeometry(1, 0.2, 0.1),
+      new THREE.BoxGeometry(0.15, 0.02, 0.01),
       new THREE.MeshStandardMaterial({ color: 0x503540 })
     );
     box.position.x = lower_position.x;
@@ -167,7 +171,7 @@ class Traverse {
   }
 
   ClearOldBoxes() {
-    while (this.boxes.length > 20) {
+    while (this.boxes.length > 50) {
       this.container.remove(this.boxes[0]);
       this.boxes[0].clear();
       this.boxes.shift();
@@ -187,7 +191,7 @@ export class Rails {
   }
 
   public AddPoint(position: THREE.Vector3, rotation: THREE.Quaternion) {
-    const right = new THREE.Vector3(0.5, 0, 0).applyQuaternion(rotation);
+    const right = new THREE.Vector3(0.05, 0, 0).applyQuaternion(rotation);
     this.left.AddPoint(position.clone().sub(right), rotation);
     this.right.AddPoint(position.clone().add(right), rotation);
     this.traverse.AddPoint(position, rotation);

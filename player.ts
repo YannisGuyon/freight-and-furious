@@ -11,14 +11,13 @@ export class Player {
   is_go_right = false;
   is_go_left = false;
 
-  constructor(scene: THREE.Object3D) {
-    this.empty.position.y = 6;
-    this.empty.rotateX(-Math.PI/4.0);
-    const direction_representation = new THREE.Mesh(
-      new THREE.ConeGeometry(0.2, 0.5),
-      new THREE.MeshStandardMaterial({ color: 0x66aa66 })
-    );
-    this.empty.add(direction_representation);
+  constructor(scene: THREE.Object3D, height: number) {
+    this.empty.position.y = height;
+    // const direction_representation = new THREE.Mesh(
+    //   new THREE.ConeGeometry(0.2, 0.5),
+    //   new THREE.MeshStandardMaterial({ color: 0x66aa66 })
+    // );
+    // this.empty.add(direction_representation);
     this.pivot.add(this.empty);
     scene.add(this.pivot);
 
@@ -43,15 +42,21 @@ export class Player {
 
   public Update(step: number) {
     this.pivot.rotateOnAxis(new THREE.Vector3(-1, 0, 0), step);
-    this.empty.getWorldPosition(this.path_representation[this.current_player_index].position);
-    this.empty.getWorldQuaternion(this.path_representation[this.current_player_index].quaternion);
-    this.current_player_index = (this.current_player_index+1)%length_player_path;
-    this.current_train_index = (this.current_train_index+1)%length_player_path;
+    this.empty.getWorldPosition(
+      this.path_representation[this.current_player_index].position
+    );
+    this.empty.getWorldQuaternion(
+      this.path_representation[this.current_player_index].quaternion
+    );
+    this.current_player_index =
+      (this.current_player_index + 1) % length_player_path;
+    this.current_train_index =
+      (this.current_train_index + 1) % length_player_path;
 
-    if (this.is_go_left&&!this.is_go_right) {
-      this.pivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.01);
-    } else if (!this.is_go_left&&this.is_go_right) {
-      this.pivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), -0.01);
+    if (this.is_go_left && !this.is_go_right) {
+      this.pivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.05);
+    } else if (!this.is_go_left && this.is_go_right) {
+      this.pivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), -0.05);
     }
   }
 
@@ -68,5 +73,12 @@ export class Player {
     const rotation = new THREE.Quaternion();
     this.empty.getWorldQuaternion(rotation);
     return rotation;
+  }
+
+  public GetIdealCameraPosition(camera_distance: number) {
+    const forward = new THREE.Vector3(0, 0, -camera_distance).applyQuaternion(
+      this.GetAbsoluteRotation()
+    );
+    return this.GetAbsolutePosition().sub(forward);
   }
 }

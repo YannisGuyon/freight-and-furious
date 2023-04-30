@@ -32,11 +32,13 @@ renderer.toneMappingExposure = 1;
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 const camera = new THREE.PerspectiveCamera(
-  /*fov=*/ 80,
+  /*fov=*/ 60,
   /*aspect=*/ window.innerWidth / window.innerHeight,
   /*near=*/ 0.001,
   /*far=*/ 100
 );
+const planet_radius = 10;
+const camera_distance = 8;
 
 const controls = new OrbitControls(camera, renderer.domElement);
 let debug_camera = false;
@@ -68,23 +70,23 @@ const camera_representation = new THREE.Mesh(
 camera_placeholder.add(camera_representation);
 scene.add(camera_placeholder);
 
-const player = new Player(scene);
+const player = new Player(scene, planet_radius);
 
 const planet = new THREE.Mesh(
-  new THREE.SphereGeometry(6, 32, 32),
+  new THREE.SphereGeometry(planet_radius, 32, 32),
   new THREE.MeshStandardMaterial({ color: 0x123456 })
 );
-for (let i = 0; i < 30; ++i) {
+for (let i = 0; i < 200; ++i) {
   const building_parent = new THREE.Object3D();
   const building = new THREE.Mesh(
     new THREE.BoxGeometry(
       THREE.MathUtils.randFloat(0.1, 0.7),
-      THREE.MathUtils.randFloat(0.3, 1.2),
+      THREE.MathUtils.randFloat(0.8, 4.2),
       THREE.MathUtils.randFloat(0.1, 0.7)
     ),
     new THREE.MeshStandardMaterial({ color: 0xaabbcc })
   );
-  building.position.y = 6;
+  building.position.y = planet_radius;
   building_parent.add(building);
   building_parent.setRotationFromQuaternion(new THREE.Quaternion().random());
   planet.add(building_parent);
@@ -195,9 +197,26 @@ function renderLoop() {
 
   player.Update(0.01);
 
-  player.GetTrain().getWorldPosition(camera_placeholder.position);
-  camera_placeholder.translateY(3);
-  player.GetTrain().getWorldQuaternion(camera_placeholder.quaternion);
+//   player.GetTrain().getWorldPosition(camera_placeholder.position);
+//   camera_placeholder.translateY(camera_elevation);
+  const ideal_camera_position = player.GetIdealCameraPosition(
+    camera_distance
+  );
+  const ideal_camera_rotation = player.GetAbsoluteRotation();
+
+  camera_placeholder.position.lerpVectors(
+    camera_placeholder.position,
+    ideal_camera_position,
+    0.1
+  );
+  camera_placeholder.setRotationFromQuaternion(
+    new THREE.Quaternion().slerpQuaternions(
+      camera_placeholder.quaternion,
+      ideal_camera_rotation,
+      0.1
+    )
+  );
+  //player.GetTrain().getWorldQuaternion(camera_placeholder.quaternion);
 
   rails.AddPoint(player.GetAbsolutePosition(), player.GetAbsoluteRotation());
 
