@@ -155,7 +155,7 @@ function GameLoop(duration: number, factor: number) {
   const speed_max = 2.0;
   const speed =
     speed_min +
-    Math.min(speed_max - speed_min, (speed_max - speed_min) * factor);
+    Math.min(speed_max - speed_min, (speed_max - speed_min) * Math.pow(factor, 2));
   let step = duration * speed;
   while (step > 0) {
     player.Update(Math.min(step, 0.001));
