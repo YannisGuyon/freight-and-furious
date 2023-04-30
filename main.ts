@@ -6,6 +6,7 @@ import { Player } from "./player";
 import { Rails } from "./rails";
 import { Train } from "./train";
 import { Noise3D } from "./utils";
+import { PrePostEffect } from "./pre_post_effect";
 
 function CreateRenderer() {
   let canvas = document.createElement("canvas");
@@ -193,72 +194,7 @@ replay_button.addEventListener("click", () => {
   location.reload();
 });
 
-const scene_background = new THREE.Scene();
-var uniforms_background = {
-  time: { value: 0.5 },
-  center: { type: "v2", value: new THREE.Vector2(1.0, 0.0) },
-};
-var sky_shader = new THREE.ShaderMaterial({
-  uniforms: uniforms_background,
-  vertexShader: `
-    out vec2 out_uv;
-    void main() {
-      gl_Position = vec4(position.x, position.y, 0.0, 1.0);
-      out_uv = vec2(position.x+1.0, position.y+1.0);
-    }
-    `,
-  fragmentShader: `
-    precision highp float;
-    in vec2 out_uv;
-    out vec4 output_color;
-    uniform float time;
-    uniform vec2 center;
-    void main() {
-      highp float dist = length(out_uv-center)*0.56;
-      output_color = vec4(mix(vec3(0.682, 0.886, 0.973), vec3(0.063, 0.153, 0.239), dist), 1.0);
-    }
-  `,
-  glslVersion: THREE.GLSL3,
-});
-sky_shader.depthWrite = false;
-var background_plane = new THREE.PlaneGeometry(20, 20);
-var background_mesh = new THREE.Mesh(background_plane, sky_shader);
-scene_background.add(background_mesh);
-
-const scene_post_effect = new THREE.Scene();
-var uniforms_post_effect = {
-  damage: { value: 0.0 },
-  center: { type: "v2", value: new THREE.Vector2(1.0, 0.0) },
-};
-var post_effect_shader = new THREE.ShaderMaterial({
-  uniforms: uniforms_post_effect,
-  vertexShader: `
-    out vec2 out_uv;
-    void main() {
-      gl_Position = vec4(position.x, position.y, 0.0, 1.0);
-      out_uv = vec2(position.x/2.0+0.5, position.y/2.0+0.5);
-    }
-    `,
-  fragmentShader: `
-    precision highp float;
-    in vec2 out_uv;
-    out vec4 output_color;
-    uniform float damage;
-    uniform vec2 center;
-    void main() {
-      vec2 rescale_uv = out_uv;
-      rescale_uv *= 1.0-rescale_uv.yx;
-      float vig = pow(rescale_uv.x*rescale_uv.y*15.0, 0.25);
-      output_color = vec4(vig+damage, vig, vig, 1.0);
-    }
-  `,
-  glslVersion: THREE.GLSL3,
-  blending: THREE.MultiplyBlending,
-});
-post_effect_shader.depthWrite = false;
-var post_effect_plane = new THREE.PlaneGeometry(20, 20);
-var post_effect_mesh = new THREE.Mesh(post_effect_plane, post_effect_shader);
-scene_post_effect.add(post_effect_mesh);
+var pre_post_effect = new PrePostEffect();
 
 // Events
 window.addEventListener("resize", onWindowResize, false);
@@ -330,10 +266,11 @@ function renderLoop(timestamp: number) {
       encore_plus_gros_overlay.style.display = "block";
       console.log("finished");
     }
-    if (uniforms_post_effect.damage.value > 0.0) {
-      uniforms_post_effect.damage.value -= 0.01;
+    const damage = pre_post_effect.GetDamage();
+    if (damage > 0.0) {
+      pre_post_effect.SetDamage(damage-0.01);
     } else {
-      uniforms_post_effect.damage.value = 0.0;
+      pre_post_effect.SetDamage(0.0);
     }
   }
 
@@ -459,7 +396,7 @@ function renderLoop(timestamp: number) {
   if (playing && !finished) {
     var is_collide = planet.CheckCollision(train.GetAbsolutePosition());
     if (is_collide) {
-      uniforms_post_effect.damage.value = 0.6;
+      pre_post_effect.SetDamage(0.6);
       collision_count++;
       document.getElementById("Score")!.textContent =
         "Score: " + collision_count.toString();
@@ -488,9 +425,9 @@ function renderLoop(timestamp: number) {
 
   renderer.autoClear = false;
   renderer.clear();
-  renderer.render(scene_background, camera);
+  pre_post_effect.PreRender(renderer, camera);
   renderer.render(scene, camera);
-  renderer.render(scene_post_effect, camera);
+  pre_post_effect.PostRender(renderer, camera);
 
   previous_timestamp = timestamp;
 }
