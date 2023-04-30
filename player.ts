@@ -7,20 +7,14 @@ export class Player {
   empty = new THREE.Object3D();
   path_representation = new Array<THREE.Object3D>(length_player_path);
   current_player_index = 0;
-  current_train_index = 1;
+  current_train_index = 70;
   is_go_right = false;
   is_go_left = false;
 
   constructor(scene: THREE.Object3D, height: number) {
     this.empty.position.y = height;
-    // const direction_representation = new THREE.Mesh(
-    //   new THREE.ConeGeometry(0.2, 0.5),
-    //   new THREE.MeshStandardMaterial({ color: 0x66aa66 })
-    // );
-    // this.empty.add(direction_representation);
     this.pivot.add(this.empty);
     scene.add(this.pivot);
-
     for (let i = 0; i < length_player_path; i++) {
       this.path_representation[i] = new THREE.Object3D();
       scene.add(this.path_representation[i]);

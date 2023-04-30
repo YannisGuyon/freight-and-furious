@@ -79,15 +79,18 @@ const planet = new Planet(scene, planet_radius);
 
 const rails = new Rails(scene);
 
+const train = new THREE.Object3D();
+scene.add(train);
 const loader = new GLTFLoader();
 loader.load(
   // resource URL
   "resources/gltf/old_train.glb",
   // called when the resource is loaded
   function (gltf) {
-    gltf.scene.position.y = -3;
-    gltf.scene.rotateX(Math.PI / 4.0);
-    camera_placeholder.add(gltf.scene);
+    gltf.scene.scale.x = 0.1;
+    gltf.scene.scale.y = 0.1;
+    gltf.scene.scale.z = 0.1;
+    train.add(gltf.scene);
     gltf.animations; // Array<THREE.AnimationClip>
     gltf.scene; // THREE.Group
     gltf.scenes; // Array<THREE.Group>
@@ -190,8 +193,9 @@ function renderLoop() {
 
   player.Update(0.01);
 
-  //   player.GetTrain().getWorldPosition(camera_placeholder.position);
-  //   camera_placeholder.translateY(camera_elevation);
+  player.GetTrain().getWorldPosition(train.position);
+  player.GetTrain().getWorldQuaternion(train.quaternion);
+  
   const ideal_camera_position = player.GetIdealCameraPosition(camera_distance);
   const ideal_camera_rotation = player.GetAbsoluteRotation();
 
