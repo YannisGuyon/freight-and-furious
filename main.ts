@@ -279,7 +279,7 @@ function renderLoop(timestamp: number) {
     }
     const score = pre_post_effect.GetScore();
     if (score > 0.0) {
-      pre_post_effect.SetScore(score-0.01);
+      pre_post_effect.SetScore(score - 0.01);
     } else {
       pre_post_effect.SetScore(0.0);
     }
@@ -416,12 +416,20 @@ function renderLoop(timestamp: number) {
       document.getElementById("Damage")!.textContent =
         "Damage: " + collision_count.toString();
     }
-    var is_collide_crate = planet.CheckCollisionCrate(train.GetAbsolutePosition());
+    var is_collide_crate = planet.CheckCollisionCrate(
+      train.GetAbsolutePosition()
+    );
     if (is_collide_crate) {
       pre_post_effect.SetScore(0.6);
       crate_count++;
       document.getElementById("Score")!.textContent =
-      "Score: " + crate_count.toString();
+        "Score: " + crate_count.toString();
+
+      const sound_element = document.getElementById(
+        "Bonus"
+      )! as HTMLMediaElement;
+      sound_element.currentTime = 0;
+      sound_element.play();
     }
   }
   if (!debug_stop) {

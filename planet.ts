@@ -182,6 +182,8 @@ export class Planet {
         "Paf"
       )! as HTMLMediaElement;
       sound_element.currentTime = 0;
+      sound_element.preservesPitch = false;
+      sound_element.playbackRate = THREE.MathUtils.randFloat(0.5, 1.5);
       sound_element.play();
       return true;
     }
