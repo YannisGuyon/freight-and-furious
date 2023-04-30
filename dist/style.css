@@ -11,14 +11,17 @@ body {
     background-color: transparent;
     color: #FFFFFF;
 }
+
 #Fps {
     position: absolute;
     left: 10px;
     top: 40px;
     background-color: transparent;
     color: #720000;
-    display: none; /* comment for displaying FPS */
+    display: none;
+    /* comment for displaying FPS */
 }
+
 #Debug {
     position: absolute;
     left: 10px;
@@ -27,16 +30,102 @@ body {
     color: #bbbbbb;
 }
 
-#Map, #MapPosition {
+#Map,
+#MapPosition {
     position: absolute;
     right: 2%;
     bottom: 2%;
     width: 15%;
     background-color: transparent;
 }
+
 #Map {
-    z-index:10;
+    z-index: 10;
 }
+
 #MapPosition {
-    z-index:11;
+    z-index: 11;
+}
+
+#GrosOverlay {
+    position: absolute;
+    background: rgb(2, 0, 36);
+    background: linear-gradient(346deg, rgba(2, 0, 36, 1) 20%, rgba(9, 71, 121, 1) 43%, rgba(87, 177, 195, 1) 91%);
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 20;
+}
+
+#PlayButton {
+    position: relative;
+    top:25%;
+    bottom:25%;
+    left:25%;
+    right:25%;
+    width: 50%;
+    height: 50%;
+
+    appearance: button;
+    background-color: #1899D6;
+    border: solid transparent;
+    border-radius: 16px;
+    border-width: 0 0 4px;
+    box-sizing: border-box;
+    color: #FFFFFF;
+    cursor: pointer;
+    display: inline-block;
+    font-family: din-round, sans-serif;
+    font-size: 10em;
+    font-weight: 700;
+    letter-spacing: .8px;
+    line-height: 20px;
+    margin: 0;
+    outline: none;
+    overflow: visible;
+    padding: 13px 16px;
+    text-align: center;
+    text-transform: uppercase;
+    touch-action: manipulation;
+    transform: translateZ(0);
+    transition: filter .2s;
+    user-select: none;
+    -webkit-user-select: none;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+#PlayButton:after {
+    background-clip: padding-box;
+    background-color: #1CB0F6;
+    border: solid transparent;
+    border-radius: 16px;
+    border-width: 0 0 4px;
+    bottom: -4px;
+    content: "";
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: -1;
+}
+
+#PlayButton:main,
+#PlayButton:focus {
+    user-select: auto;
+}
+
+#PlayButton:hover:not(:disabled):not(:active) {
+    filter: brightness(1.1);
+    -webkit-filter: brightness(1.1);
+}
+
+#PlayButton:active {
+    filter: brightness(0.6);
+    -webkit-filter: brightness(0.6);
+}
+
+#PlayButton:disabled {
+    cursor: auto;
 }

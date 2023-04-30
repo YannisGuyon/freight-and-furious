@@ -3,6 +3,7 @@ import * as THREE from "three";
 class Rail {
   container = new THREE.Object3D();
   profiles = new Array<THREE.Mesh>();
+  readonly max_profiles = 30;
   last_position = new THREE.Vector3();
 
   current_profile = new Array<THREE.Vector3>();
@@ -97,10 +98,12 @@ class Rail {
       );
     }
 
-    if (this.vertices_float.length == 0) {
-      this.vertices_float = new Float32Array(this.vertices.length * 3);
-      this.normals_float = new Float32Array(this.normals.length * 3);
-    }
+    this.vertices_float = new Float32Array(this.vertices.length * 3);
+    this.normals_float = new Float32Array(this.normals.length * 3);
+    // if (this.vertices_float.length == 0) {
+    //   this.vertices_float = new Float32Array(this.vertices.length * 3);
+    //   this.normals_float = new Float32Array(this.normals.length * 3);
+    // }
     for (let i = 0; i < this.vertices.length; ++i) {
       this.vertices_float[i * 3] = this.vertices[i].x;
       this.vertices_float[i * 3 + 1] = this.vertices[i].y;
@@ -130,17 +133,22 @@ class Rail {
   }
 
   ClearOldProfiles() {
-    while (this.profiles.length > 30) {
+    while (this.profiles.length > this.max_profiles) {
       this.container.remove(this.profiles[0]);
       this.profiles[0].clear();
       this.profiles.shift();
     }
+  }
+
+  public IsLoaded() {
+    return this.profiles.length >= this.max_profiles;
   }
 }
 
 class Traverse {
   container = new THREE.Object3D();
   boxes = new Array<THREE.Mesh>();
+  readonly max_boxes = 50;
   last_position = new THREE.Vector3();
 
   constructor(scene: THREE.Object3D) {
@@ -171,11 +179,15 @@ class Traverse {
   }
 
   ClearOldBoxes() {
-    while (this.boxes.length > 50) {
+    while (this.boxes.length > this.max_boxes) {
       this.container.remove(this.boxes[0]);
       this.boxes[0].clear();
       this.boxes.shift();
     }
+  }
+
+  public IsLoaded() {
+    return this.boxes.length >= this.max_boxes;
   }
 }
 
@@ -195,5 +207,9 @@ export class Rails {
     this.left.AddPoint(position.clone().sub(right), rotation);
     this.right.AddPoint(position.clone().add(right), rotation);
     this.traverse.AddPoint(position, rotation);
+  }
+
+  public IsLoaded() {
+    return this.left.IsLoaded() && this.right.IsLoaded() && this.traverse.IsLoaded();
   }
 }
