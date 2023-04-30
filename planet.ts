@@ -87,7 +87,7 @@ export class Planet {
       new THREE.SphereGeometry(planet_radius, 128, 64),
       shader
     );
-    LoadRock(planet, planet_radius, this.buildings, this.buildings_scale, 200);
+    LoadRock(planet, planet_radius, this.buildings, this.buildings_scale, 2000);
     scene.add(planet);
   }
 
@@ -113,7 +113,8 @@ export class Planet {
 
   public CheckCollision(
     train_position: THREE.Vector3,
-    train_direction: THREE.Vector3
+    train_direction: THREE.Vector3,
+    train_speed: number
   ) {
     let min_angle = 1000;
     let closest_building_index = this.buildings.length;
@@ -133,7 +134,9 @@ export class Planet {
       const closest_building = this.buildings[closest_building_index];
       const building_position = new THREE.Vector3();
       closest_building.getWorldPosition(building_position);
-      this.hit_buildings_linear_velocity.push(train_direction.clone());
+      this.hit_buildings_linear_velocity.push(
+        train_direction.clone().multiplyScalar(train_speed)
+      );
       this.hit_buildings_angular_velocity.push(new THREE.Quaternion().random());
       this.buildings.splice(closest_building_index, 1);
       this.buildings_scale.splice(closest_building_index, 1);
@@ -144,7 +147,9 @@ export class Planet {
       this.scene.add(parent);
       const parent2 = new THREE.Object3D();
       parent.add(parent2);
-      parent2.position.copy(parent.position.clone().setLength(closest_building.scale.y/0.001));
+      parent2.position.copy(
+        parent.position.clone().setLength(closest_building.scale.y / 0.001)
+      );
       parent2.attach(closest_building);
       this.hit_buildings_parent.push(parent);
       this.hit_buildings.push(parent2);
@@ -155,6 +160,12 @@ export class Planet {
       // );
       // parent2.add(box);
       this.Punch(this.hit_buildings.length - 1, 0.3);
+
+      const sound_element = document.getElementById(
+        "Paf"
+      )! as HTMLMediaElement;
+      sound_element.currentTime = 0;
+      sound_element.play();
       return true;
     }
     return false;
@@ -165,7 +176,7 @@ export class Planet {
     const parent = this.hit_buildings_parent[i];
     const linear_velocity = this.hit_buildings_linear_velocity[i];
     const angular_velocity = this.hit_buildings_angular_velocity[i];
-    
+
     parent.position.add(linear_velocity.clone().multiplyScalar(quantity));
     const quaternion = new THREE.Quaternion()
       .identity()
