@@ -55,14 +55,43 @@ body {
     bottom: 0;
     z-index: 20;
 }
+#FreightAndFurious {
+    position: absolute;
+    top: 10%;
+    left: 0%;
+    width: 50%;
+    height: 90%;
+    text-align: center;
+
+    transform: translate(50%,-50%);
+    text-transform: uppercase;
+    font-family: verdana;
+    font-size: 12em;
+    font-weight: 700;
+    color: #f5f5f5;
+    text-shadow: 1px 1px 1px #919191,
+        1px 2px 1px #919191,
+        1px 3px 1px #919191,
+        1px 4px 1px #919191,
+        1px 5px 1px #919191,
+        1px 6px 1px #919191,
+        1px 7px 1px #919191,
+        1px 8px 1px #919191,
+        1px 9px 1px #919191,
+        1px 10px 1px #919191,
+    1px 18px 6px rgba(16,16,16,0.4),
+    1px 22px 10px rgba(16,16,16,0.2),
+    1px 25px 35px rgba(16,16,16,0.2),
+    1px 30px 60px rgba(16,16,16,0.4);
+
+    transform: rotate(11deg);
+}
 
 #PlayButton {
-    position: relative;
-    top: 25%;
-    bottom: 25%;
-    left: 25%;
-    right: 25%;
-    width: 50%;
+    position: absolute;
+    top: 20%;
+    right: -5%;
+    width: 40%;
     height: 50%;
 
     appearance: button;
@@ -86,7 +115,7 @@ body {
     text-align: center;
     text-transform: uppercase;
     touch-action: manipulation;
-    transform: translateZ(0);
+    transform: rotate(11deg);
     transition: filter .2s;
     user-select: none;
     -webkit-user-select: none;
@@ -181,7 +210,7 @@ body {
     height: 20%;
 
     font-family: din-round, sans-serif;
-    font-size: 4em;
+    font-size: 5em;
     font-weight: 700;
     letter-spacing: .8px;
     white-space: nowrap;
@@ -192,14 +221,16 @@ body {
         1px 2px 1px #919191,
         1px 3px 1px #919191,
         1px 4px 1px #919191;
+
+    transform: rotate(11deg);
 }
 
 #ReplayButton {
     position: absolute;
-    right: 10%;
-    bottom: 10%;
-    width: 20%;
-    height: 20%;
+    top: 40%;
+    right: -5%;
+    width: 30%;
+    height: 40%;
 
     appearance: button;
     background-color: #1899D6;
@@ -211,7 +242,7 @@ body {
     cursor: pointer;
     display: inline-block;
     font-family: din-round, sans-serif;
-    font-size: 3em;
+    font-size: 5em;
     font-weight: 700;
     letter-spacing: .8px;
     line-height: 20px;
@@ -222,7 +253,7 @@ body {
     text-align: center;
     text-transform: uppercase;
     touch-action: manipulation;
-    transform: translateZ(0);
+    transform: rotate(11deg);
     transition: filter .2s;
     user-select: none;
     -webkit-user-select: none;
