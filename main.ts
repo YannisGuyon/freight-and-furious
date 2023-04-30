@@ -5,7 +5,6 @@ import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { Planet } from "./planet";
 import { Player } from "./player";
 import { Rails } from "./rails";
-import { Sound } from "./sound";
 
 let canvas = document.createElement("canvas");
 canvas.style.visibility = "hidden";
@@ -43,7 +42,6 @@ const camera = new THREE.PerspectiveCamera(
   /*near=*/ 0.001,
   /*far=*/ 100
 );
-let sound: Sound | null = null;
 const planet_radius = 10;
 const camera_distance = 5;
 
@@ -148,11 +146,17 @@ function onDocumentKeyUp(event: KeyboardEvent) {
     player.EndMoveRight();
     user_triggered_event = true;
   }
-  if (user_triggered_event && sound == null) {
+  if (user_triggered_event) {
     // Avoids "The AudioContext was not allowed to start.
     // It must be resumed (or created) after a user gesture on the page."
-    sound = new Sound(camera);
+    //sound = new Sound(camera);
   }
+}
+
+document.addEventListener("keydown", startSound, {passive: true, once: true});
+function startSound() {
+  const sound_element = document.getElementById("Sound")! as HTMLMediaElement;
+  sound_element.play();
 }
 
 const scene_background = new THREE.Scene();
@@ -212,19 +216,27 @@ function renderLoop(timestamp: number) {
       canvas.style.opacity = "" + Math.min(time - 1, 1);
     }
 
+    const factor = Math.max(0, Math.min(1, (time - 1) / 30));
     const speed_min = 0.008;
-    const speed_max = 0.015;
-    let speed =
+    const speed_max = 0.025;
+    const speed =
       speed_min +
-      Math.min(speed_max - speed_min, (speed_max - speed_min) * (time / 30));
-    while (speed > 0) {
-      player.Update(Math.min(speed, 0.001));
+      Math.min(speed_max - speed_min, (speed_max - speed_min) * factor);
+    let remaining_speed = speed;
+    while (remaining_speed > 0) {
+      player.Update(Math.min(remaining_speed, 0.001));
       rails.AddPoint(
         player.GetAbsolutePosition(),
         player.GetAbsoluteRotation()
       );
-      speed -= 0.001;
+      remaining_speed -= 0.001;
     }
+
+    const sound_element = document.getElementById("Sound")! as HTMLMediaElement;
+    sound_element.playbackRate = Math.max(1, Math.min(2, 1 + factor * 1));
+
+    // document.getElementById("Debug")!.textContent =
+    //   "Factor " + factor.toString();
   }
 
   player.GetTrain().getWorldPosition(train.position);

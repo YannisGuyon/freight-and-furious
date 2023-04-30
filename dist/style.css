@@ -19,3 +19,10 @@ body {
     color: #720000;
     display: none; /* comment for displaying FPS */
 }
+#Debug {
+    position: absolute;
+    left: 10px;
+    top: 60px;
+    background-color: transparent;
+    color: #bbbbbb;
+}
