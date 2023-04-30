@@ -1,9 +1,11 @@
 import * as THREE from "three";
 
 const shrinking_angular_distance = Math.PI / 4;
+const collision_angular_distance = 0.02;
 
 export class Planet {
   buildings = new Array<THREE.Mesh>();
+  current_collision:THREE.Mesh|null = null;
 
   constructor(scene: THREE.Object3D, planet_radius: number) {
     const planet = new THREE.Mesh(
@@ -27,6 +29,10 @@ export class Planet {
         new THREE.Quaternion().random()
       );
       planet.add(building_parent);
+      building.geometry.computeBoundingBox();
+      var helper = new THREE.BoxHelper(building_parent, 0xff0000);
+      helper.update();
+      scene.add(helper);
     }
     scene.add(planet);
   }
@@ -46,5 +52,29 @@ export class Planet {
         building.scale.y = 1;
       }
     }
+  }
+
+  public CheckCollision(train: THREE.Object3D) {
+    var min_angle = 1000;
+    var closest_building:THREE.Mesh|null = null;
+    for (let building of this.buildings) {
+      const building_position = new THREE.Vector3();
+      building.getWorldPosition(building_position);
+      const train_position = new THREE.Vector3();
+      train.getWorldPosition(train_position);
+      const angular_distance = building_position.angleTo(train_position);
+      if (angular_distance < min_angle) {
+        min_angle = angular_distance;
+        closest_building = building;
+      }
+    }
+    if (closest_building !== null && this.current_collision === null && min_angle < collision_angular_distance) {
+      this.current_collision = closest_building;
+      return true;
+    }
+    if (min_angle > collision_angular_distance) {
+      this.current_collision = null;
+    }
+    return false;
   }
 }

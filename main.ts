@@ -91,9 +91,9 @@ loader.load(
   "resources/gltf/old_train.glb",
   // called when the resource is loaded
   function (gltf) {
-    gltf.scene.scale.x = 0.1;
-    gltf.scene.scale.y = 0.1;
-    gltf.scene.scale.z = 0.1;
+    gltf.scene.scale.x = 0.001;
+    gltf.scene.scale.y = 0.001;
+    gltf.scene.scale.z = 0.001;
     train.add(gltf.scene);
     gltf.animations; // Array<THREE.AnimationClip>
     gltf.scene; // THREE.Group
@@ -225,6 +225,11 @@ function renderLoop() {
   planet.ReduceBuildings(camera_placeholder.position);
 
   rails.AddPoint(player.GetAbsolutePosition(), player.GetAbsoluteRotation());
+
+  var is_collide = planet.CheckCollision(train);
+  if (is_collide) {
+    console.log("collision !!");
+  }
 
   if (debug_camera) {
     controls.update();
