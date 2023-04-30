@@ -156,7 +156,10 @@ function GameLoop(duration: number, factor: number) {
   const speed_max = 2.0;
   const speed =
     speed_min +
-    Math.min(speed_max - speed_min, (speed_max - speed_min) * factor);
+    Math.min(
+      speed_max - speed_min,
+      (speed_max - speed_min) * Math.pow(factor, 2)
+    );
   let step = duration * speed;
   while (step > 0) {
     player.Update(Math.min(step, 0.001));
@@ -251,8 +254,9 @@ function renderLoop(timestamp: number) {
 
   if (playing && !debug_stop && !finished) {
     time += duration;
-
-    const factor = Math.max(0, Math.min(1, (time - 1) / 60));
+  }
+  const factor = Math.max(0, Math.min(1, (time - 1) / 60));
+  if (playing && !debug_stop && !finished) {
     GameLoop(duration, factor);
 
     const sound_element = document.getElementById("Sound")! as HTMLMediaElement;
@@ -269,7 +273,7 @@ function renderLoop(timestamp: number) {
     }
     const damage = pre_post_effect.GetDamage();
     if (damage > 0.0) {
-      pre_post_effect.SetDamage(damage-0.01);
+      pre_post_effect.SetDamage(damage - 0.01);
     } else {
       pre_post_effect.SetDamage(0.0);
     }
@@ -403,7 +407,8 @@ function renderLoop(timestamp: number) {
   if (playing && !finished) {
     var is_collide = planet.CheckCollision(
       train.GetAbsolutePosition(),
-      train.GetAbsoluteDirection().negate()
+      train.GetAbsoluteDirection().negate(),
+      1 + factor
     );
     if (is_collide) {
       pre_post_effect.SetDamage(0.6);

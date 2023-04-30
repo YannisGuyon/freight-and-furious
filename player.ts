@@ -50,6 +50,9 @@ export class Player {
     const forward = new THREE.Vector3(0, 0, -camera_distance).applyQuaternion(
       this.GetAbsoluteRotation()
     );
-    return this.GetAbsolutePosition().sub(forward);
+    const down = new THREE.Vector3(0, -0.3, 0).applyQuaternion(
+      this.GetAbsoluteRotation()
+    );
+    return this.GetAbsolutePosition().sub(forward).add(down);
   }
 }
