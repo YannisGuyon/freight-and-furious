@@ -2,28 +2,29 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
+import { Planet } from "./planet";
 import { Player } from "./player";
 import { Rails } from "./rails";
 
 function CreateRenderer() {
-  var canvas = document.createElement('canvas');
-  var context = canvas.getContext('webgl2');
+  var canvas = document.createElement("canvas");
+  var context = canvas.getContext("webgl2");
   if (context) {
-      return new THREE.WebGLRenderer({
-          alpha: true,
-          antialias: true,
-          canvas: canvas,
-          context: context
-      });
+    return new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true,
+      canvas: canvas,
+      context: context,
+    });
   } else {
-      return new THREE.WebGLRenderer({
-          alpha: true,
-          antialias: true,
-      });
+    return new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true,
+    });
   }
 }
 
-const renderer:THREE.WebGLRenderer = CreateRenderer();
+const renderer: THREE.WebGLRenderer = CreateRenderer();
 renderer.setPixelRatio(window.devicePixelRatio);
 
 // Environment
@@ -38,7 +39,7 @@ const camera = new THREE.PerspectiveCamera(
   /*far=*/ 100
 );
 const planet_radius = 10;
-const camera_distance = 8;
+const camera_distance = 5;
 
 const controls = new OrbitControls(camera, renderer.domElement);
 let debug_camera = false;
@@ -72,26 +73,7 @@ scene.add(camera_placeholder);
 
 const player = new Player(scene, planet_radius);
 
-const planet = new THREE.Mesh(
-  new THREE.SphereGeometry(planet_radius, 32, 32),
-  new THREE.MeshStandardMaterial({ color: 0x123456 })
-);
-for (let i = 0; i < 200; ++i) {
-  const building_parent = new THREE.Object3D();
-  const building = new THREE.Mesh(
-    new THREE.BoxGeometry(
-      THREE.MathUtils.randFloat(0.1, 0.7),
-      THREE.MathUtils.randFloat(0.8, 4.2),
-      THREE.MathUtils.randFloat(0.1, 0.7)
-    ),
-    new THREE.MeshStandardMaterial({ color: 0xaabbcc })
-  );
-  building.position.y = planet_radius;
-  building_parent.add(building);
-  building_parent.setRotationFromQuaternion(new THREE.Quaternion().random());
-  planet.add(building_parent);
-}
-scene.add(planet);
+const planet = new Planet(scene, planet_radius);
 
 const rails = new Rails(scene);
 
@@ -102,7 +84,7 @@ loader.load(
   // called when the resource is loaded
   function (gltf) {
     gltf.scene.position.y = -3;
-    gltf.scene.rotateX(Math.PI/4.0)
+    gltf.scene.rotateX(Math.PI / 4.0);
     camera_placeholder.add(gltf.scene);
     gltf.animations; // Array<THREE.AnimationClip>
     gltf.scene; // THREE.Group
@@ -155,19 +137,19 @@ function onDocumentKeyUp(event: KeyboardEvent) {
 
 const scene_background = new THREE.Scene();
 var uniforms_background = {
-  "time": {value: 0.5},
-  "center": {type: "v2", value: new THREE.Vector2(1.0, 0.0)},
+  time: { value: 0.5 },
+  center: { type: "v2", value: new THREE.Vector2(1.0, 0.0) },
 };
 var sky_shader = new THREE.ShaderMaterial({
-  uniforms : uniforms_background,
-  vertexShader : `
+  uniforms: uniforms_background,
+  vertexShader: `
     out vec2 out_uv;
     void main() {
         gl_Position = vec4(position.x, position.y, 0.0, 1.0);
         out_uv = vec2(position.x+1.0, position.y+1.0);
     }
     `,
-  fragmentShader : `
+  fragmentShader: `
     precision highp float;
     in vec2 out_uv;
     out vec4 output_color;
@@ -198,11 +180,9 @@ function renderLoop() {
 
   player.Update(0.01);
 
-//   player.GetTrain().getWorldPosition(camera_placeholder.position);
-//   camera_placeholder.translateY(camera_elevation);
-  const ideal_camera_position = player.GetIdealCameraPosition(
-    camera_distance
-  );
+  //   player.GetTrain().getWorldPosition(camera_placeholder.position);
+  //   camera_placeholder.translateY(camera_elevation);
+  const ideal_camera_position = player.GetIdealCameraPosition(camera_distance);
   const ideal_camera_rotation = player.GetAbsoluteRotation();
 
   camera_placeholder.position.lerpVectors(
@@ -217,7 +197,7 @@ function renderLoop() {
       0.1
     )
   );
-  //player.GetTrain().getWorldQuaternion(camera_placeholder.quaternion);
+  planet.ReduceBuildings(camera_placeholder.position);
 
   rails.AddPoint(player.GetAbsolutePosition(), player.GetAbsoluteRotation());
 
