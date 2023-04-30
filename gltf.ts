@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { Noise3D } from "./utils";
 
 const loader = new GLTFLoader();
 
@@ -90,6 +91,13 @@ export function LoadRock(planet:THREE.Object3D, location_y:number, parent:Array<
         planet.add(building_parent);
         var rock = gltf.scene.clone();
         building_parent.add(rock);
+        var world_space_position = new THREE.Vector3();
+        rock.getWorldPosition(world_space_position);
+        world_space_position.x *= 0.5;
+        world_space_position.y *= 0.5;
+        world_space_position.z *= 0.5;
+        const noise = Noise3D(world_space_position)*0.05;
+        rock.position.y -= location_y*noise;
         parent.push(rock);
       }
     },
