@@ -10,9 +10,70 @@ export class Planet {
   current_collision:THREE.Object3D|null = null;
 
   constructor(scene: THREE.Object3D, planet_radius: number) {
+
+    const texture_loader = new THREE.TextureLoader();
+    var uniforms = {
+      sand: { type: "t", value: texture_loader.load(
+        "resources/texture/sand.png",
+        function (texture) {texture.repeat = new THREE.Vector2(1000, 1000);}) },
+      planet_radius: {type: "f", value: planet_radius},
+    };
+    var shader = new THREE.ShaderMaterial({
+      uniforms: uniforms,
+      vertexShader: `
+        out vec2 in_uv;
+        out vec3 in_position;
+        
+        vec4 mod289(vec4 x) {
+          return x-floor(x*(1.0/289.0))*289.0;
+        }
+      
+        vec4 perm(vec4 x) {
+          return mod289(((x*34.0)+1.0)*x);
+        }
+
+        float noise3D(vec3 p) {
+          vec3 a = floor(p);
+          vec3 d = p-a;
+          d = d*d*(3.0-2.0*d);
+          vec4 b = a.xxyy+vec4(0.0, 1.0, 0.0, 1.0);
+          vec4 k1 = perm(b.xyxy);
+          vec4 k2 = perm(k1.xyxy+b.zzww);
+          vec4 c = k2+a.zzzz;
+          vec4 k3 = perm(c);
+          vec4 k4 = perm(c+1.0);
+          vec4 o1 = fract(k3*(1.0/41.0));
+          vec4 o2 = fract(k4*(1.0/41.0));
+          vec4 o3 = o2*d.z+o1*(1.0-d.z);
+          vec2 o4 = o3.yw*d.x+o3.xz*(1.0-d.x);
+          return o4.y*d.y+o4.x*(1.0-d.y);
+        }
+
+        void main() {
+          float noise = noise3D(position*0.5)*0.05;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position-position*noise, 1.0);
+          in_position = position.xyz;
+          in_uv = uv;
+        }
+        `,
+      fragmentShader: `
+        precision highp float;
+        in vec2 in_uv;
+        in vec3 in_position;
+        uniform sampler2D sand;
+        uniform float planet_radius;
+        out vec4 output_color;
+        void main() {
+          vec3 color = texture2D(sand, mod((in_uv*4.0), 1.0)).rgb;
+          output_color = vec4(color, 1.0);
+        }
+      `,
+      glslVersion: THREE.GLSL3,
+    });
+
     const planet = new THREE.Mesh(
-      new THREE.SphereGeometry(planet_radius, 32, 32),
-      new THREE.MeshStandardMaterial({ color: 0x123456 })
+      new THREE.SphereGeometry(planet_radius, 128, 64),
+      shader,
     );
     LoadRock(planet, planet_radius, this.buildings, 200);
     scene.add(planet);

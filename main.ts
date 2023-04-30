@@ -188,8 +188,8 @@ var sky_shader = new THREE.ShaderMaterial({
   vertexShader: `
     out vec2 out_uv;
     void main() {
-        gl_Position = vec4(position.x, position.y, 0.0, 1.0);
-        out_uv = vec2(position.x+1.0, position.y+1.0);
+      gl_Position = vec4(position.x, position.y, 0.0, 1.0);
+      out_uv = vec2(position.x+1.0, position.y+1.0);
     }
     `,
   fragmentShader: `
