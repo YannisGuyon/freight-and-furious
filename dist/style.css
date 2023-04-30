@@ -4,14 +4,6 @@ body {
     background: #aaaaab;
 }
 
-#Collision {
-    position: absolute;
-    left: 10px;
-    top: 10px;
-    background-color: transparent;
-    color: #FFFFFF;
-}
-
 #Fps {
     position: absolute;
     left: 10px;
@@ -19,6 +11,18 @@ body {
     background-color: transparent;
     color: #720000;
     /* display: none; */
+}
+
+#Pause {
+    position: absolute;
+    left: 5px;
+    bottom: 5px;
+    background-color: transparent;
+    color: white;
+    display: none;
+    opacity: 0.5;
+    font-family: din-round, sans-serif;
+    font-size: 7em;
 }
 
 #Debug {
