@@ -27,6 +27,8 @@ function CreateRenderer() {
   }
 }
 
+var collision_count = 0;
+
 const renderer: THREE.WebGLRenderer = CreateRenderer();
 renderer.setPixelRatio(window.devicePixelRatio);
 
@@ -248,7 +250,11 @@ function renderLoop(timestamp: number) {
 
   var is_collide = planet.CheckCollision(train);
   if (is_collide) {
-    console.log("collision !!");
+    collision_count++;
+    var score_element = document.getElementById("Collision");
+    if (score_element) {
+      score_element.textContent="Collision count: "+collision_count.toString();
+    }
   }
 
   if (debug_camera) {

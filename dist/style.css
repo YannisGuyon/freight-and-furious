@@ -3,3 +3,11 @@ body {
     margin: 0px;
     background: #aaaaab;
 }
+
+#Collision {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    background-color: transparent;
+    color: #FFFFFF;
+}
