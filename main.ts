@@ -235,6 +235,10 @@ function renderLoop(timestamp: number) {
     const sound_element = document.getElementById("Sound")! as HTMLMediaElement;
     sound_element.playbackRate = Math.max(1, Math.min(2, 1 + factor * 1));
 
+    const map_position = document.getElementById("MapPosition")!;
+    map_position.style.transform = "rotate(" + (factor * 180 - 90).toString() + "deg)";
+    // transform: rotate(90deg);
+
     // document.getElementById("Debug")!.textContent =
     //   "Factor " + factor.toString();
   }
