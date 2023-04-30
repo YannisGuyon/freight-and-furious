@@ -90,7 +90,9 @@ const player = new Player(scene, planet_radius);
 let playing = false;
 let finished = false;
 const gros_overlay = document.getElementById("GrosOverlay")!;
-const encore_plus_gros_overlay = document.getElementById("EncorePlusGrosOverlay")!;
+const encore_plus_gros_overlay = document.getElementById(
+  "EncorePlusGrosOverlay"
+)!;
 let gros_overlay_opacity = 1;
 const play_button = document.getElementById("PlayButton")!;
 const replay_button = document.getElementById("ReplayButton")!;
@@ -154,7 +156,8 @@ function GameLoop(duration: number, factor: number) {
   while (step > 0) {
     player.Update(Math.min(step, 0.001));
     const position = player.GetAbsolutePosition();
-    const displacement = 1 - Noise3D(position.clone().multiplyScalar(0.5)) * 0.05;
+    const displacement =
+      1 - Noise3D(position.clone().multiplyScalar(0.5)) * 0.05;
     position.multiplyScalar(displacement);
     rails.AddPoint(position, player.GetAbsoluteRotation());
     train.AddPoint(position, player.GetAbsoluteRotation());
@@ -171,16 +174,11 @@ function StartPlaying() {
     for (let i = 0; i < 1000; ++i) {
       player.Update(0.001);
       const position = player.GetAbsolutePosition();
-      const displacement = 1 - Noise3D(position.clone().multiplyScalar(0.5)) * 0.05;
+      const displacement =
+        1 - Noise3D(position.clone().multiplyScalar(0.5)) * 0.05;
       position.multiplyScalar(displacement);
-      rails.AddPoint(
-        position,
-        player.GetAbsoluteRotation()
-      );
-      train.AddPoint(
-        position,
-        player.GetAbsoluteRotation()
-      );
+      rails.AddPoint(position, player.GetAbsoluteRotation());
+      train.AddPoint(position, player.GetAbsoluteRotation());
       if (rails.IsLoaded()) {
         break;
       }
@@ -283,19 +281,22 @@ function renderLoop(timestamp: number) {
     const map_position = document.getElementById("MapPosition")!;
     map_position.style.transform =
       "rotate(" + (factor * 180 - 90).toString() + "deg)";
-      
-      if (factor == 1) {
-        finished = true;
-        encore_plus_gros_overlay.style.display = "block";
-        console.log("finished");
-      }
+
+    if (factor == 1) {
+      finished = true;
+      encore_plus_gros_overlay.style.display = "block";
+      console.log("finished");
+    }
   }
 
   const tip_position = player.GetAbsolutePosition();
   if (finished) {
     train.LaunchIntoSpace();
-  }else {
-  train.SetPosition(tip_position);
+  } else {
+    train.SetPosition(tip_position);
+  }
+  if (playing && !debug_stop) {
+    train.SpawnSmoke();
   }
 
   const ideal_camera_position = player.GetIdealCameraPosition(camera_distance);
@@ -428,6 +429,11 @@ function renderLoop(timestamp: number) {
       camera.rotateX(Math.PI * 0.5);
     }
   }
+
+  if (playing && !debug_stop) {
+    train.UpdateSmoke(duration, camera.quaternion);
+  }
+
   renderer.autoClear = false;
   renderer.clear();
   renderer.render(scene_background, camera);

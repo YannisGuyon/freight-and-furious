@@ -16,8 +16,17 @@ export class Train {
 
   min_used_index = 0;
 
+  smoke_spawner_object = new THREE.Object3D();
+  smoke_texture = new THREE.TextureLoader().load("resources/cloud.png");
+  smoke_geometry = new THREE.PlaneGeometry();
+  smoke_container = new THREE.Object3D();
+  smoke_particles = new Array<THREE.Mesh>();
+
   constructor(scene: THREE.Object3D) {
+    scene.add(this.smoke_container);
     scene.add(this.loco);
+    this.smoke_spawner_object.position.set(0, 0.3, 0);
+    this.loco.add(this.smoke_spawner_object);
     LoadTrain(this.loco);
 
     for (let i = 0; i < wagon_count; ++i) {
@@ -104,6 +113,59 @@ export class Train {
     object.setRotationFromQuaternion(final_rotation);
 
     this.min_used_index = Math.min(this.min_used_index, index);
+  }
+
+  SpawnSmoke() {
+    const position = new THREE.Vector3();
+    this.smoke_spawner_object.getWorldPosition(position);
+    if (
+      this.smoke_particles.length > 0 &&
+      this.smoke_particles[this.smoke_particles.length - 1].position.distanceTo(
+        position
+      ) < 1
+    ) {
+      return;
+    }
+    while (this.smoke_particles.length > 20) {
+      this.smoke_container.remove(this.smoke_particles[0]);
+      this.smoke_particles[0].clear();
+      this.smoke_particles.shift();
+    }
+    const smoke_element = new THREE.Mesh(
+      this.smoke_geometry,
+      new THREE.MeshBasicMaterial({
+        map: this.smoke_texture,
+        opacity: 0.8,
+        transparent: true,
+      })
+    );
+    smoke_element.scale.set(
+      THREE.MathUtils.randFloat(0.15, 0.25),
+      THREE.MathUtils.randFloat(0.15, 0.25),
+      THREE.MathUtils.randFloat(0.15, 0.25)
+    );
+    smoke_element.position.copy(position);
+    smoke_element.position.add(
+      new THREE.Vector3(
+        THREE.MathUtils.randFloat(-0.05, 0.05),
+        THREE.MathUtils.randFloat(-0.05, 0.05),
+        THREE.MathUtils.randFloat(-0.05, 0.05)
+      )
+    );
+
+    this.smoke_container.add(smoke_element);
+    this.smoke_particles.push(smoke_element);
+  }
+  public UpdateSmoke(duration: number, camera_orientation: THREE.Quaternion) {
+    for (let smoke_particle of this.smoke_particles) {
+      smoke_particle.position.add(
+        smoke_particle.position.clone().normalize().multiplyScalar(duration)
+      );
+      smoke_particle.scale.addScalar(duration);
+      smoke_particle.quaternion.copy(camera_orientation);
+      const material = smoke_particle.material as THREE.Material;
+      material.opacity = Math.max(0, material.opacity - duration * 0.3);
+    }
   }
 
   public SetPosition(tip_position: THREE.Vector3) {
