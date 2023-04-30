@@ -6,11 +6,17 @@ const shrinking_angular_distance = Math.PI / 4;
 const collision_angular_distance = 0.02;
 
 export class Planet {
+  scene: THREE.Object3D;
   buildings = new Array<THREE.Object3D>();
   buildings_scale = new Array<number>();
-  current_collision: THREE.Object3D | null = null;
+
+  hit_buildings = new Array<THREE.Object3D>();
+  hit_buildings_parent = new Array<THREE.Object3D>();
+  hit_buildings_linear_velocity = new Array<THREE.Vector3>();
+  hit_buildings_angular_velocity = new Array<THREE.Quaternion>();
 
   constructor(scene: THREE.Object3D, planet_radius: number) {
+    this.scene = scene;
     const texture_loader = new THREE.TextureLoader();
     var uniforms = {
       sand: {
@@ -105,28 +111,72 @@ export class Planet {
     }
   }
 
-  public CheckCollision(train_position: THREE.Vector3) {
-    var min_angle = 1000;
-    var closest_building: THREE.Object3D | null = null;
-    for (let building of this.buildings) {
+  public CheckCollision(
+    train_position: THREE.Vector3,
+    train_direction: THREE.Vector3
+  ) {
+    let min_angle = 1000;
+    let closest_building_index = this.buildings.length;
+    for (let i = 0; i < this.buildings.length; ++i) {
       const building_position = new THREE.Vector3();
-      building.getWorldPosition(building_position);
+      this.buildings[i].getWorldPosition(building_position);
       const angular_distance = building_position.angleTo(train_position);
       if (angular_distance < min_angle) {
         min_angle = angular_distance;
-        closest_building = building;
+        closest_building_index = i;
       }
     }
     if (
-      closest_building !== null &&
-      this.current_collision === null &&
+      closest_building_index != this.buildings.length &&
       min_angle < collision_angular_distance
     ) {
-      this.current_collision = closest_building;
+      const closest_building = this.buildings[closest_building_index];
+      const building_position = new THREE.Vector3();
+      closest_building.getWorldPosition(building_position);
+      this.hit_buildings_linear_velocity.push(train_direction.clone());
+      this.hit_buildings_angular_velocity.push(new THREE.Quaternion().random());
+      this.buildings.splice(closest_building_index, 1);
+      this.buildings_scale.splice(closest_building_index, 1);
+      //closest_building.scale.set(0, 0, 0);
+
+      const parent = new THREE.Object3D();
+      closest_building.getWorldPosition(parent.position);
+      this.scene.add(parent);
+      const parent2 = new THREE.Object3D();
+      parent.add(parent2);
+      parent2.position.copy(parent.position.clone().setLength(closest_building.scale.y/0.001));
+      parent2.attach(closest_building);
+      this.hit_buildings_parent.push(parent);
+      this.hit_buildings.push(parent2);
+
+      // const box = new THREE.Mesh(
+      //   new THREE.BoxGeometry(1, 1, 1),
+      //   new THREE.MeshStandardMaterial({ color: 0xff0000 })
+      // );
+      // parent2.add(box);
+      this.Punch(this.hit_buildings.length - 1, 0.3);
       return true;
     }
-    if (min_angle > collision_angular_distance) {
-      this.current_collision = null;
+    return false;
+  }
+
+  Punch(i: number, quantity: number) {
+    const building = this.hit_buildings[i];
+    const parent = this.hit_buildings_parent[i];
+    const linear_velocity = this.hit_buildings_linear_velocity[i];
+    const angular_velocity = this.hit_buildings_angular_velocity[i];
+    
+    parent.position.add(linear_velocity.clone().multiplyScalar(quantity));
+    const quaternion = new THREE.Quaternion()
+      .identity()
+      .rotateTowards(angular_velocity, quantity);
+    building.applyQuaternion(quaternion);
+  }
+
+  public UpdateHit(duration: number) {
+    const punch = duration * 10;
+    for (let i = 0; i < this.hit_buildings.length; ++i) {
+      this.Punch(i, punch);
     }
     return false;
   }

@@ -417,12 +417,18 @@ function renderLoop(timestamp: number) {
   planet.ReduceBuildings(camera_placeholder.position);
 
   if (playing && !finished) {
-    var is_collide = planet.CheckCollision(train.GetAbsolutePosition());
+    var is_collide = planet.CheckCollision(
+      train.GetAbsolutePosition(),
+      train.GetAbsoluteDirection().negate()
+    );
     if (is_collide) {
       collision_count++;
       document.getElementById("Score")!.textContent =
         "Score: " + collision_count.toString();
     }
+  }
+  if (!debug_stop) {
+    planet.UpdateHit(duration);
   }
 
   document.getElementById("Fps")!.textContent =

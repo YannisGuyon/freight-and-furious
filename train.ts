@@ -193,6 +193,11 @@ export class Train {
     this.loco.getWorldPosition(position);
     return position;
   }
+  public GetAbsoluteDirection() {
+    const direction = new THREE.Vector3();
+    this.loco.getWorldDirection(direction);
+    return direction;
+  }
 
   // Equivalent of AddPoint() + SetPosition()
   public LaunchIntoSpace() {
