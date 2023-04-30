@@ -131,4 +131,18 @@ export class Train {
     this.loco.getWorldPosition(position);
     return position;
   }
+
+  // Equivalent of AddPoint() + SetPosition()
+  public LaunchIntoSpace() {
+    if (this.positions.length < 2) {
+      return;
+    }
+
+    const new_tip_position = this.positions[this.positions.length - 1]
+      .clone()
+      .multiplyScalar(2)
+      .sub(this.positions[this.positions.length - 2]);
+    this.AddPoint(new_tip_position, this.rotations[this.rotations.length - 1]);
+    this.SetPosition(new_tip_position);
+  }
 }
