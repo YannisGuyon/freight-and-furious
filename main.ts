@@ -139,6 +139,8 @@ function onDocumentKeyUp(event: KeyboardEvent) {
     user_triggered_event = true;
   }
   if (user_triggered_event && sound == null) {
+    // Avoids "The AudioContext was not allowed to start.
+    // It must be resumed (or created) after a user gesture on the page."
     sound = new Sound(camera);
   }
 }
