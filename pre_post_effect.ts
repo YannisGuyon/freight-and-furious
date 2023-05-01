@@ -8,7 +8,7 @@ export class PrePostEffect {
   };
 
   scene_post_effect = new THREE.Scene();
-  uniforms_post_effect = {damage: {value: 0.0}, score: {value: 0.0}};
+  uniforms_post_effect = { damage: { value: 0.0 }, score: { value: 0.0 } };
 
   constructor() {
     var sky_shader = new THREE.ShaderMaterial({
@@ -66,7 +66,10 @@ export class PrePostEffect {
       depthWrite: false,
     });
     var post_effect_plane = new THREE.PlaneGeometry(20, 20);
-    var post_effect_mesh = new THREE.Mesh(post_effect_plane, post_effect_shader);
+    var post_effect_mesh = new THREE.Mesh(
+      post_effect_plane,
+      post_effect_shader
+    );
     this.scene_post_effect.add(post_effect_mesh);
   }
 
@@ -86,12 +89,17 @@ export class PrePostEffect {
     this.uniforms_post_effect.score.value = score_value;
   }
 
-  public PreRender(renderer:THREE.WebGLRenderer, camera:THREE.PerspectiveCamera) {
+  public PreRender(
+    renderer: THREE.WebGLRenderer,
+    camera: THREE.PerspectiveCamera
+  ) {
     renderer.render(this.scene_background, camera);
   }
 
-  public PostRender(renderer:THREE.WebGLRenderer, camera:THREE.PerspectiveCamera) {
+  public PostRender(
+    renderer: THREE.WebGLRenderer,
+    camera: THREE.PerspectiveCamera
+  ) {
     renderer.render(this.scene_post_effect, camera);
   }
-  
 }

@@ -5,7 +5,7 @@ import { Noise3D } from "./utils";
 
 const loader = new GLTFLoader();
 
-export function LoadTrain(train:THREE.Object3D) {
+export function LoadTrain(train: THREE.Object3D) {
   loader.load(
     // resource URL
     "resources/gltf/old_train.glb",
@@ -27,7 +27,7 @@ export function LoadTrain(train:THREE.Object3D) {
   );
 }
 
-export function LoadWagon(wagons:Array<THREE.Object3D>) {
+export function LoadWagon(wagons: Array<THREE.Object3D>) {
   loader.load(
     // resource URL
     "resources/gltf/wagon.glb",
@@ -51,7 +51,7 @@ export function LoadWagon(wagons:Array<THREE.Object3D>) {
   );
 }
 
-export function LoadWagonCoal(wagons:Array<THREE.Object3D>) {
+export function LoadWagonCoal(wagons: Array<THREE.Object3D>) {
   loader.load(
     // resource URL
     "resources/gltf/wagon_coal.glb",
@@ -73,20 +73,26 @@ export function LoadWagonCoal(wagons:Array<THREE.Object3D>) {
   );
 }
 
-export function LoadRock(planet:THREE.Object3D, location_y:number, parent:Array<THREE.Object3D>, buildings_scale:Array<number>, rock_count:number) {
+export function LoadRock(
+  planet: THREE.Object3D,
+  location_y: number,
+  parent: Array<THREE.Object3D>,
+  buildings_scale: Array<number>,
+  rock_count: number
+) {
   loader.load(
     // resource URL
     "resources/gltf/rock1.glb",
     // called when the resource is loaded
     function (gltf) {
       gltf.scene.position.y = location_y;
-      for (var i=0; i<rock_count; ++i) {
+      for (var i = 0; i < rock_count; ++i) {
         const building_parent = new THREE.Object3D();
         building_parent.setRotationFromQuaternion(
           new THREE.Quaternion().random()
         );
         planet.add(building_parent);
-        const scaling = 0.0005+Math.random()*0.001;
+        const scaling = 0.0005 + Math.random() * 0.001;
         buildings_scale.push(scaling);
         gltf.scene.scale.x = scaling;
         gltf.scene.scale.y = scaling;
@@ -98,8 +104,8 @@ export function LoadRock(planet:THREE.Object3D, location_y:number, parent:Array<
         world_space_position.x *= 0.5;
         world_space_position.y *= 0.5;
         world_space_position.z *= 0.5;
-        const noise = Noise3D(world_space_position)*0.05;
-        rock.position.y -= location_y*noise;
+        const noise = Noise3D(world_space_position) * 0.05;
+        rock.position.y -= location_y * noise;
         parent.push(rock);
       }
     },
@@ -114,18 +120,21 @@ export function LoadRock(planet:THREE.Object3D, location_y:number, parent:Array<
   );
 }
 
-export function LoadCrate(planet:THREE.Object3D, location_y:number, parent:Array<THREE.Object3D>, crate_count:number) {
+export function LoadCrate(
+  planet: THREE.Object3D,
+  location_y: number,
+  parent: Array<THREE.Object3D>,
+  crate_count: number
+) {
   loader.load(
     // resource URL
     "resources/gltf/crate.glb",
     // called when the resource is loaded
     function (gltf) {
       gltf.scene.position.y = location_y;
-      for (var i=0; i<crate_count; ++i) {
+      for (var i = 0; i < crate_count; ++i) {
         const crate_parent = new THREE.Object3D();
-        crate_parent.setRotationFromQuaternion(
-          new THREE.Quaternion().random()
-        );
+        crate_parent.setRotationFromQuaternion(new THREE.Quaternion().random());
         planet.add(crate_parent);
         const scaling = 0.001;
         gltf.scene.scale.x = scaling;
@@ -138,8 +147,8 @@ export function LoadCrate(planet:THREE.Object3D, location_y:number, parent:Array
         world_space_position.x *= 0.5;
         world_space_position.y *= 0.5;
         world_space_position.z *= 0.5;
-        const noise = Noise3D(world_space_position)*0.05;
-        crate.position.y -= location_y*noise;
+        const noise = Noise3D(world_space_position) * 0.05;
+        crate.position.y -= location_y * noise;
         parent.push(crate);
       }
     },

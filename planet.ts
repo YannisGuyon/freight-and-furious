@@ -90,7 +90,13 @@ export class Planet {
       new THREE.SphereGeometry(planet_radius, 128, 64),
       shader
     );
-    LoadRock(this.planet, planet_radius, this.buildings, this.buildings_scale, 200);
+    LoadRock(
+      this.planet,
+      planet_radius,
+      this.buildings,
+      this.buildings_scale,
+      200
+    );
     LoadCrate(this.planet, planet_radius, this.crates, 50);
     scene.add(this.planet);
   }
@@ -120,7 +126,7 @@ export class Planet {
       const crate_position = new THREE.Vector3();
       this.crates[i].getWorldPosition(crate_position);
       const angular_distance = crate_position.angleTo(train_position);
-      if (angular_distance < collision_angular_distance*2) {
+      if (angular_distance < collision_angular_distance * 2) {
         this.crates[i].position.x = 1000;
         return true;
       }
@@ -178,9 +184,7 @@ export class Planet {
       // parent2.add(box);
       this.Punch(this.hit_buildings.length - 1, 0.3);
 
-      const sound_element = document.getElementById(
-        "Paf"
-      )! as HTMLMediaElement;
+      const sound_element = document.getElementById("Paf")! as HTMLMediaElement;
       sound_element.currentTime = 0;
       sound_element.preservesPitch = false;
       sound_element.playbackRate = THREE.MathUtils.randFloat(0.5, 1.5);

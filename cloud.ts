@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { ImprovedNoise } from 'three/examples/jsm/math/ImprovedNoise.js';
+import { ImprovedNoise } from "three/examples/jsm/math/ImprovedNoise.js";
 
 export class Cloud {
   pivot = new THREE.Object3D();
@@ -13,7 +13,7 @@ export class Cloud {
     opacity: { value: 0.25 },
     range: { value: 0.1 },
     steps: { value: 100 },
-    frame: { value: 0 }
+    frame: { value: 0 },
   };
 
   constructor(scene: THREE.Object3D, height: number) {
@@ -25,21 +25,32 @@ export class Cloud {
     scene.add(this.pivot);
 
     const size = 128;
-    const data = new Uint8Array( size * size * size );
+    const data = new Uint8Array(size * size * size);
     let i = 0;
     const scale = 0.05;
     const perlin = new ImprovedNoise();
     const vector = new THREE.Vector3();
-    for ( let z = 0; z < size; z ++ ) {
-      for ( let y = 0; y < size; y ++ ) {
-        for ( let x = 0; x < size; x ++ ) {
-          const d = 1.0 - vector.set( x, y, z ).subScalar( size / 2 ).divideScalar( size ).length();
-          data[ i ] = ( 128 + 128 * perlin.noise( x * scale / 1.5, y * scale, z * scale / 1.5 ) ) * d * d;
-          i ++;
+    for (let z = 0; z < size; z++) {
+      for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+          const d =
+            1.0 -
+            vector
+              .set(x, y, z)
+              .subScalar(size / 2)
+              .divideScalar(size)
+              .length();
+          data[i] =
+            (128 +
+              128 *
+                perlin.noise((x * scale) / 1.5, y * scale, (z * scale) / 1.5)) *
+            d *
+            d;
+          i++;
         }
       }
     }
-    const texture = new THREE.Data3DTexture( data, size, size, size );
+    const texture = new THREE.Data3DTexture(data, size, size, size);
     texture.format = THREE.RedFormat;
     texture.minFilter = THREE.LinearFilter;
     texture.magFilter = THREE.LinearFilter;
@@ -66,7 +77,7 @@ export class Cloud {
 					}
 				`;
 
-    const fragmentShader = /* glsl */`
+    const fragmentShader = /* glsl */ `
         precision highp float;
         precision highp sampler3D;
 
@@ -178,20 +189,20 @@ export class Cloud {
 
         }
       `;
-      this.uniforms.map.value = texture;
-      const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-				const material = new THREE.RawShaderMaterial( {
-					glslVersion: THREE.GLSL3,
-					uniforms: this.uniforms,
-					vertexShader,
-					fragmentShader,
-					side: THREE.BackSide,
-					transparent: true
-				} );
+    this.uniforms.map.value = texture;
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const material = new THREE.RawShaderMaterial({
+      glslVersion: THREE.GLSL3,
+      uniforms: this.uniforms,
+      vertexShader,
+      fragmentShader,
+      side: THREE.BackSide,
+      transparent: true,
+    });
 
-				this.mesh = new THREE.Mesh(geometry, material);
-        this.empty.add(this.mesh);
-				scene.add(this.empty);
+    this.mesh = new THREE.Mesh(geometry, material);
+    this.empty.add(this.mesh);
+    scene.add(this.empty);
   }
 
   public Update(camera_position: THREE.Vector3) {
