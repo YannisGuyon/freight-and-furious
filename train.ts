@@ -17,7 +17,7 @@ export class Train {
   min_used_index = 0;
 
   smoke_spawner_object = new THREE.Object3D();
-  smoke_texture = new THREE.TextureLoader().load("resources/cloud.png");
+  smoke_texture = new THREE.TextureLoader().load("resources/texture/cloud.png");
   smoke_geometry = new THREE.PlaneGeometry();
   smoke_container = new THREE.Object3D();
   smoke_particles = new Array<THREE.Mesh>();
