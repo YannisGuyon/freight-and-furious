@@ -95,6 +95,7 @@ const gros_overlay = document.getElementById("GrosOverlay")!;
 const encore_plus_gros_overlay = document.getElementById(
   "EncorePlusGrosOverlay"
 )!;
+let encore_plus_gros_overlay_opacity = 0;
 let gros_overlay_opacity = 1;
 const play_button = document.getElementById("PlayButton")!;
 const replay_button = document.getElementById("ReplayButton")!;
@@ -283,6 +284,12 @@ function renderLoop(timestamp: number) {
     } else {
       pre_post_effect.SetScore(0.0);
     }
+  }
+
+  if (finished && encore_plus_gros_overlay_opacity != 1) {
+    encore_plus_gros_overlay_opacity += duration * 3;
+    encore_plus_gros_overlay.style.opacity =
+      encore_plus_gros_overlay_opacity.toString();
   }
 
   const tip_position = player.GetAbsolutePosition();
