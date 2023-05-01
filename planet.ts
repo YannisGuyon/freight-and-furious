@@ -95,7 +95,7 @@ export class Planet {
       planet_radius,
       this.buildings,
       this.buildings_scale,
-      200
+      100
     );
     LoadCrate(this.planet, planet_radius, this.crates, 50);
     scene.add(this.planet);
