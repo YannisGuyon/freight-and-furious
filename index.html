@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Freight&Furious</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <audio id="Sound">
+        <source src="resources/sound/railroad-trip.mp3" type="audio/mpeg">
+    </audio>
+    <div id="Damage">Damage: 0</div>
+    <div id="Score">Score: 0</div>
+    <audio id="Paf">
+        <source src="resources/sound/paf.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="Bonus">
+        <source src="resources/sound/bonus.mp3" type="audio/mpeg">
+    </audio>
+    <div id="Pause">Pause</div>
+    <div id="Fps"></div>
+    <div id="Debug"></div>
+    <div id="Progress"></div>
+    <image id="Map" src="resources/texture/map.svg"></image>
+    <image id="MapPosition" src="resources/texture/map_position.svg"></image>
+    <script type="module" src="bundle.js"></script>
+    <div id="GrosOverlay">
+        <div id="FreightAndFurious">Freight<br>&<br>Furious</div>
+        <button id="PlayButton">PLAY</button>
+    </div>
+    <div id="EncorePlusGrosOverlay">
+        <div id="DeliverySuccess">Delivery success!</div>
+        <button id="ReplayButton">REPLAY</button>
+    </div>
+</body>
+
+</html>
