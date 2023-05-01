@@ -243,14 +243,12 @@ function renderLoop(timestamp: number) {
   );
   const duration = average_duration; // Can also be hardcoded to 0.016.
 
-  let lerp_factor = 0.2;
   if (playing && gros_overlay_opacity > 0) {
     gros_overlay_opacity = Math.max(0, gros_overlay_opacity - duration);
     gros_overlay.style.opacity = gros_overlay_opacity.toString();
     if (gros_overlay_opacity == 0) {
       gros_overlay.style.display = "none";
     }
-    lerp_factor = 1;
   }
 
   if (playing && !debug_stop && !finished) {
@@ -305,7 +303,7 @@ function renderLoop(timestamp: number) {
   const ideal_camera_position = player.GetIdealCameraPosition(camera_distance);
   const ideal_camera_rotation = player.GetAbsoluteRotation();
 
-  if (lerp_factor == 1) {
+  if (gros_overlay_opacity > 0.95) {
     camera_placeholder.position.x = ideal_camera_position.x;
     camera_placeholder.position.y = ideal_camera_position.y;
     camera_placeholder.position.z = ideal_camera_position.z;
@@ -449,7 +447,7 @@ function renderLoop(timestamp: number) {
   if (debug_camera) {
     controls.update();
   } else {
-    if (lerp_factor == 1) {
+    if (gros_overlay_opacity > 0.95) {
       camera_placeholder.getWorldPosition(camera.position);
       camera_placeholder.getWorldQuaternion(camera.quaternion);
     } else {
