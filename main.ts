@@ -49,6 +49,7 @@ const camera_distance = 5;
 const controls = new OrbitControls(camera, renderer.domElement);
 let debug_camera = false;
 let debug_stop = false;
+let debug_inspect = false;
 
 // Objects
 const scene = new THREE.Scene();
@@ -118,7 +119,7 @@ function onDocumentKeyDown(event: KeyboardEvent) {
     return;
   }
   var keyCode = event.key;
-  if (keyCode == "Shift") {
+  if (keyCode == "Shift" && debug_inspect) {
     debug_camera = !debug_camera;
     if (debug_camera) {
       camera.position.x = 0;
